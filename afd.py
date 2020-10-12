@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import erros
+from erros import *
 
 class AFD():
 
@@ -45,6 +45,6 @@ class AFD():
 
             estadoAtual = list(self.transicoes[estadoAtual][c])[0]
 
-        if estadoAtual in estadosFinais:
+        if estadoAtual in self.estadosFinais:
             return True
         return False
