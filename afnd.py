@@ -1,4 +1,4 @@
-import afd
+from afd import *
 
 class AFND(AFD):
 
@@ -10,8 +10,8 @@ class AFND(AFD):
 
 
 
-    def epsilonFecho(self, estado):
-        self.epsilonFecho[estado] = set()
+    def epsilonFechoFunc(self, estado):
+        self.epsilonFecho[estado] = set([estado])
         current = [estado]
         visited = set()
 
@@ -28,12 +28,11 @@ class AFND(AFD):
         return
 
 
-
     def computar(self, s):
         for t in self.estados:
-            self.epsilonFecho(t)
+            self.epsilonFechoFunc(t)
 
-        estadosAtuais = epsilonFecho(estadoInicial)
+        estadosAtuais = self.epsilonFecho[self.estadoInicial]
 
         for c in s:
             if c not in self.alfabeto:
@@ -43,12 +42,19 @@ class AFND(AFD):
 
             for e in estadosAtuais:
                 if c in self.transicoes[e]:
-                    proximosEstados.union(set(map(lambda x: self.epsilonFecho[x], \
-                                                  self.transicoes[e][c])))
+                    print(self.epsilonFecho)
+                    print(self.transicoes[e][c])
+                    t = map(lambda x: self.epsilonFecho[x], \
+                                            self.transicoes[e][c])
+                    alguma = []
+                    for i in t:
+                        for _ in range(len(i)):
+                            alguma.append(i.pop())
+                    proximosEstados.union(set(alguma))
 
             estadosAtuais = proximosEstados
 
         for e in estadosAtuais:
-            if e in estadosFinais:
+            if e in self.estadosFinais:
                 return True
         return False

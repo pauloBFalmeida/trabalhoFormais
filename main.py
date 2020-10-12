@@ -1,4 +1,6 @@
 from afd import AFD
+from afnd import AFND
+
 def lerArquivoAF(arquivo):
     with open(arquivo, "r") as file:
         linhas = file.read().split('\n')
@@ -9,7 +11,7 @@ def lerArquivoAF(arquivo):
         transicoes = []
         for linha in linhas[4:]:
             transicoes.append(linha.split(','))
-    rodrigo = AFD([str(i) for i in range(int(nEstados))], alfabeto, estadoInicial, estadosFinais)
+    rodrigo = AFND([str(i) for i in range(int(nEstados))], alfabeto, estadoInicial, estadosFinais)
     for t in transicoes:
         rodrigo.addTransicao(t[0],t[1],t[2])
 
