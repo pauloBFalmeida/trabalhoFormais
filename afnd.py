@@ -3,7 +3,7 @@ from afd import *
 class AFND(AFD):
 
     def __init__(self, estados, alfabeto, estadoInicial, estadosFinais, transicoes=None):
-        super().__init__(estados, alfabeto, estadoInicial, estadosFinais, transicoes)
+        super().__init__(estados, alfabeto, estadoInicial, estadosFinais)
         self.alfabeto.add("&")
 
     #    self.epsilonFecho = {}
@@ -26,18 +26,24 @@ class AFND(AFD):
     #    return
 
     def computar(self, s):
+        raise ZeroDivisionError
         estadosAtuais = set([self.estadoInicial])
         for c in s:
             # simbolo nao pertecente ao alfabeto
             if c not in self.alfabeto:
                 raise SimboloInexistente(str(c))
+
+            atualizados = estadosAtuais
             for ea in estadosAtuais:
                 # passo pelas epsilon transicoes
-                if '&' in self.transicoes[ea]:
-                    estadosAtuais.add(self.transicoes[ea]['&'])
+                print(ea)
+                eb = ea
+                while '&' in self.transicoes[eb]:
+                    atualizados.union(self.transicoes[eb]['&'])
+
                 # removo os estados com transicoes mortas
                 if c not in self.transicoes[ea]:
-                    estadosAtuais.remove(ea)
+                    atualizados.remove(ea)
             # nenhum estado restante com trasicoes validas
             if len(estadosAtuais) == 0:
                 return False
@@ -51,4 +57,3 @@ class AFND(AFD):
             if ea in self.estadosFinais:
                 return True
         return False
-

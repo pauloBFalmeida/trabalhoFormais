@@ -3,15 +3,12 @@ from erros import *
 
 class AFD():
 
-    def __init__(self, estados, alfabeto, estadoInicial, estadosFinais, transicoes=None):
+    def __init__(self, estados, alfabeto, estadoInicial, estadosFinais):
         self.estados = set(estados)
         self.alfabeto = set(alfabeto)
         self.estadoInicial = estadoInicial
         self.estadosFinais = set(estadosFinais)
-        if transicoes:
-            self.transicoes = transicoes
-        else:
-            self.transicoes = {}
+        self.transicoes = {}
 
     def addEstado(self, estado):
         self.estados.add(estado)

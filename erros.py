@@ -15,3 +15,9 @@ class TransicaoInexistente(ErroNoAutomato):
     def __init__(self, estadoInicial, simbolo):
         self.message = f"A transição delta({estadoInicial},{simbolo}) é vazia."
         super().__init__(self.message)
+
+class ErroNaGramatica(Exception):
+    pass
+
+class GramaticaNaoRegular(ErroNaGramatica):
+    pass
