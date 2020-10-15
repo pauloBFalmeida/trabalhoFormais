@@ -2,58 +2,85 @@ from afd import *
 
 class AFND(AFD):
 
-    def __init__(self, estados, alfabeto, estadoInicial, estadosFinais, transicoes=None):
+    def __init__(self, estados, alfabeto, estadoInicial, estadosFinais):
         super().__init__(estados, alfabeto, estadoInicial, estadosFinais)
         self.alfabeto.add("&")
+        self.epsilonFechos = {}
 
-    #    self.epsilonFecho = {}
 
-    #def epsilonFechoFunc(self, estado):
-    #    self.epsilonFecho[estado] = set([estado])
-    #    current = [estado]
-    #    visited = set()
+    def epsilonFecho(self, estado):
+        alcancaveis = set([estado])
 
-    #    while len(current)>0:
-    #        next = []
-    #        for s in current:
-    #            if '&' in self.transicoes[s]:
-    #                for t in self.transicoes[s]['&']:
-    #                    if not t in visited:
-    #                        next.append(t)
-    #                        visited.append(t)
-    #                    self.epsilonFecho[estado].add(t)
-    #        current = next
-    #    return
+        current = set()
+        current.add(estado)
+        visited = set()
+        visited.add(estado)
+
+        while len(current) > 0:
+            next = set()
+
+            for e in current:
+                if e in self.transicoes and '&' in self.transicoes[e]:
+                    for t in self.transicoes[e]['&']:
+                        if t not in visited:
+                            visited.add(t)
+                            next.add(t)
+            current = next
+
+        return visited
+
+    def gerarEpsilonFecho(self):
+        for e in self.estados:
+            self.epsilonFechos[e] = self.epsilonFecho(e)
+        for e in self.epsilonFechos:
+            print(str(e) + " " + str(self.epsilonFechos[e]))
 
     def computar(self, s):
-        raise ZeroDivisionError
-        estadosAtuais = set([self.estadoInicial])
+        self.gerarEpsilonFecho()
+
+        estadoAtual = self.epsilonFechos[self.estadoInicial]
+
         for c in s:
-            # simbolo nao pertecente ao alfabeto
             if c not in self.alfabeto:
                 raise SimboloInexistente(str(c))
 
-            atualizados = estadosAtuais
-            for ea in estadosAtuais:
-                # passo pelas epsilon transicoes
-                print(ea)
-                eb = ea
-                while '&' in self.transicoes[eb]:
-                    atualizados.union(self.transicoes[eb]['&'])
+            proximoEstado = set()
 
-                # removo os estados com transicoes mortas
-                if c not in self.transicoes[ea]:
-                    atualizados.remove(ea)
-            # nenhum estado restante com trasicoes validas
-            if len(estadosAtuais) == 0:
-                return False
-            # percorro as transicoes
-            estados = list(estadosAtuais)
-            estadosAtuais.clear()
-            for ea in estados:
-                estadosAtuais.update([ne for ne in self.transicoes[ea][c]])
-        # vejo se tem algum estado que seja de aceitacao
-        for ea in estadosAtuais:
-            if ea in self.estadosFinais:
+            for e in estadoAtual:
+                if e in self.transicoes and c in self.transicoes[e]:
+                    for n in self.transicoes[e][c]:
+                        proximoEstado = proximoEstado.union(self.epsilonFechos[n])
+
+            estadoAtual = proximoEstado
+        for e in estadoAtual:
+            if e in self.estadosFinais:
                 return True
         return False
+
+
+    def traduzir(self, conjunto):
+        k = 0
+        for i in range(len(self.estados)):
+            if i in conjunto:
+                k = (k << 1) + 1
+            else:
+                k = k << 1
+        return k
+
+    def destraduzir(self, k):
+        conjunto = set()
+        for i in range(len(self.estados)-1, -1,-1):
+            if k % 2 == 1:
+                conjunto.add(i)
+                k -= 1
+            k = k >> 1
+        return conjunto
+
+    def determinizar(self):
+        self.gerarEpsilonFecho()
+
+        novasTransicoes = {}
+
+        self.__class__ = AFD
+        print(self.__class__)
+        print(self.alfabeto)

@@ -1,9 +1,12 @@
-from random import randint
-print("afd1.txt")
-r = ""
-for i in range(5000000):
-    if randint(0,1) == 0:
-        r += "b"
-    else:
-        r += "a"
-print(r)
+conjunto = list(map(int, input().split()))
+estados = int(input())
+
+def traduzir(conjunto, estados):
+    k = 0
+    for i in range(estados):
+        if i in conjunto:
+            k = (k << 1) + 1
+        else:
+            k = k << 1
+    return k
+print(traduzir(conjunto, estados))

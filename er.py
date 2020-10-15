@@ -1,5 +1,6 @@
 
-# 
-# class ER():
-#
-#     def __init__(self, )
+
+class ER():
+
+    def __init__(self):
+        self.definicoes = {}

@@ -11,7 +11,7 @@ def criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
 def criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
     afnd = AFND([str(i) for i in range(int(nEstados))], alfabeto, estadoInicial, estadosFinais)
     for t in transicoes:
-        print(t)
+        # print(t)
         for estadosFinais in t[2].split('-'):
             afnd.addTransicao(t[0],t[1],estadosFinais)
     return afnd
@@ -29,6 +29,23 @@ def lerArquivoAF(arquivo):
         if len(linha) == 0:
             break
         transicoes.append(linha.split(','))
+
+    rodrigo = criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
+    # for t in transicoes:
+    #     # print(t)
+    #     for estadosFinais in t[2].split('-'):
+    #         afnd.addTransicao(t[0],t[1],estadosFinais)
+    while(True):
+        try:
+            # s = input()
+            # print(rodrigo.computar(s))
+            s = set(list(map(int, input().split())))
+            # print(rodrigo.destraduzir(rodrigo.traduzir(s)))
+            rodrigo.determinizar()
+        except EOFError:
+            break
+
+
 
 def lerArquivoGR(arquivo):
     with open(arquivo, "r") as file:
@@ -53,7 +70,7 @@ def lerArquivoGR(arquivo):
 
 
     #rodrigo = criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
-    # rodrigo = criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
+    rodrigo = criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
 
     # while(True):
     #     try:
@@ -63,4 +80,4 @@ def lerArquivoGR(arquivo):
     #         break
 
 arquivo = input('nome do arquivo:\n')
-lerArquivoGR(arquivo)
+lerArquivoAF(arquivo)
