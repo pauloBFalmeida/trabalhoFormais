@@ -39,9 +39,11 @@ def lerArquivoAF(arquivo):
         try:
             # s = input()
             # print(rodrigo.computar(s))
-            s = set(list(map(int, input().split())))
+            #s = set(list(map(int, input().split())))
             # print(rodrigo.destraduzir(rodrigo.traduzir(s)))
+            rodrigo.printEstados()
             rodrigo.determinizar()
+            break
         except EOFError:
             break
 

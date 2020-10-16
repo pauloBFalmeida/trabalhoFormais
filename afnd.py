@@ -32,13 +32,13 @@ class AFND(AFD):
     def gerarEpsilonFecho(self):
         for e in self.estados:
             self.epsilonFechos[e] = self.epsilonFecho(e)
-        for e in self.epsilonFechos:
-            print(str(e) + " " + str(self.epsilonFechos[e]))
+        #for e in self.epsilonFechos:
+        #    print(str(e) + " " + str(self.epsilonFechos[e]))
 
     def computar(self, s):
         self.gerarEpsilonFecho()
 
-        estadoAtual = self.epsilonFechos[self.estadoInicial]
+        estadoAtual = self.epsilonFecho[self.estadoInicial]
 
         for c in s:
             if c not in self.alfabeto:
@@ -61,7 +61,7 @@ class AFND(AFD):
     def traduzir(self, conjunto):
         k = 0
         for i in range(len(self.estados)):
-            if i in conjunto:
+            if i in conjunto or str(i) in conjunto:
                 k = (k << 1) + 1
             else:
                 k = k << 1
@@ -76,11 +76,42 @@ class AFND(AFD):
             k = k >> 1
         return conjunto
 
+    def printEstados(self):
+        for t in self.transicoes:
+            print(str(t)+' -> '+str(self.transicoes[t]))
+
     def determinizar(self):
         self.gerarEpsilonFecho()
+        if '&' in self.alfabeto:
+            self.alfabeto.remove('&')
 
         novasTransicoes = {}
+        visitados = set()
+        filaEstados = [self.epsilonFechos[self.estadoInicial]]
 
-        self.__class__ = AFD
-        print(self.__class__)
-        print(self.alfabeto)
+        while len(filaEstados) > 0:
+            estadosAtuais = filaEstados.pop()
+            visitados.add(self.traduzir(estadosAtuais))
+            for c in self.alfabeto:
+                estadosTransicao = set()
+                for e in estadosAtuais:
+                    if e in self.transicoes and c in self.transicoes[e]:
+                        for p in self.transicoes[e][c]:
+                            estadosTransicao.update(self.epsilonFechos[p])
+                if len(estadosTransicao) > 0:
+                    if self.traduzir(estadosAtuais) not in novasTransicoes:
+                        novasTransicoes[self.traduzir(estadosAtuais)] = {}
+                    novasTransicoes[self.traduzir(estadosAtuais)][c] = self.traduzir(estadosTransicao)
+                    if self.traduzir(estadosTransicao) not in visitados:
+                        filaEstados.append(estadosTransicao)
+
+        print()
+        for nt in novasTransicoes:
+            print(str(nt)+' -> '+str(novasTransicoes[nt]))
+            
+        #afd = AFD()
+        #return afd
+
+        #self.__class__ = AFD
+        #print(self.__class__)
+        #print(self.alfabeto)
