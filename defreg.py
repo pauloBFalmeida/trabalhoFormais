@@ -15,17 +15,23 @@ class DefReg:
         while i < len(s):
             c = s[i]
             if c in ['(', ' ', ')', '*', '?', '+', '|', '[', ']']:
-                if s[inicio:i] != '' and s[inicio:i] not in self.cadeias:
+                if s[inicio:i] != '':
                     self.cadeias.append(s[inicio:i])
+                self.cadeias.append(c)
                 inicio = i+1
             i += 1
 
-        # print(self.expressoes)
+        # print(self.cadeias)
 
     def pedirRefs(self):
         return self.cadeias
 
     def receberRefs(self, resolucoes):
-        for e in self.cadeias:
-            if e in resolucoes:
-                
+        for i in range(len(self.cadeias)):
+            if self.cadeias[i] in ['(', ' ', ')', '*', '?', '+', '|', '[', ']']:
+                self.expressoes.append(self.cadeias[i])
+                continue
+            self.expressoes.append(resolucoes[i])
+
+    def forcarExpressoes(self):
+        self.expressoes = self.cadeias

@@ -2,6 +2,7 @@ from afd import *
 from afnd import *
 from gr import *
 from defreg import *
+from er import *
 
 def criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
     afd = AFD([str(i) for i in range(int(nEstados))], alfabeto, estadoInicial, estadosFinais)
@@ -106,12 +107,9 @@ def lerArquivoER(arquivo):
     with open(arquivo, "r") as file:
         linhas = file.read().split('\n')
 
-    for linha in linhas:
-        if len(linha) != 0:
-            l = linha.split(":")
-            julia = DefReg(l[0], l[1][1:])
+    julia = ER(linhas)
 
-
+arquivo = input()
 # lerArquivoAF(arquivo)
 
 lerArquivoER(arquivo)
