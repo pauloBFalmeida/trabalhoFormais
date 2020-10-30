@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from erros import *
+from gr import *
 
 class AFD():
 
@@ -45,3 +46,40 @@ class AFD():
         if estadoAtual in self.estadosFinais:
             return True
         return False
+
+    def converterParaGR(self):
+        gramatica = GR(self.estadoInicial, list(self.alfabeto), list(self.estados))
+
+        for estado in self.transicoes:
+            for c in self.transicoes[estado]:
+                gramatica.addProducao(str(estado), c + str(list(self.transicoes[estado][c])[0]))
+                if list(self.transicoes[estado][c])[0] in self.estadosFinais:
+                    gramatica.addProducao(str(estado), c)
+
+        return gramatica
+
+    def printar(self):
+
+        l = "    "
+        for c in self.alfabeto:
+            l += (" | " + c + " ")
+        l += " |"
+        print(l)
+        for estado in self.estados:
+            l = ""
+            if estado == self.estadoInicial:
+                l += "->"
+            else:
+                l += "  "
+            if estado in self.estadosFinais:
+                l += "*"
+            else:
+                l += " "
+            l += str(estado)
+            for c in self.alfabeto:
+                if estado in self.transicoes and c in self.transicoes[estado]:
+                    l += " | " + str(self.transicoes[estado][c])
+                else:
+                    l += " | -"
+            l += " |"
+            print(l)

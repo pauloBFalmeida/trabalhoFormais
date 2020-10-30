@@ -1,6 +1,7 @@
-from afd import AFD
-from afnd import AFND
-from gr import GR
+from afd import *
+from afnd import *
+from gr import *
+from defreg import *
 
 def criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
     afd = AFD([str(i) for i in range(int(nEstados))], alfabeto, estadoInicial, estadosFinais)
@@ -30,22 +31,39 @@ def lerArquivoAF(arquivo):
             break
         transicoes.append(linha.split(','))
 
-    rodrigo = criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
+    rodrigo = criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
+    rodrigo.printar()
+    print()
+    geraldo = rodrigo.converterParaGR()
+    geraldo.printar()
+    print()
+    augusto = geraldo.converterParaAFND()
+    augusto.printar()
     # for t in transicoes:
     #     # print(t)
     #     for estadosFinais in t[2].split('-'):
     #         afnd.addTransicao(t[0],t[1],estadosFinais)
-    while(True):
-        try:
-            # s = input()
-            # print(rodrigo.computar(s))
-            #s = set(list(map(int, input().split())))
-            # print(rodrigo.destraduzir(rodrigo.traduzir(s)))
-            rodrigo.printEstados()
-            rodrigo.determinizar()
-            break
-        except EOFError:
-            break
+    # while(True):
+    #     try:
+    #         # s
+    #     try:
+    #         # s = input()
+    #         # print(rodrigo.computar(s))
+    #         #s = set(list(map(int, input().split())))
+    #         # print(rodrigo.destraduzir(rodrigo.traduzir(s)))
+    #         # rodrigo.printEstados()
+    #         # rodrigo.determinizar()
+    #         break
+    #     except EOFError:
+    #         break = input()
+    #         # print(rodrigo.computar(s))
+    #         #s = set(list(map(int, input().split())))
+    #         # print(rodrigo.destraduzir(rodrigo.traduzir(s)))
+    #         # rodrigo.printEstados()
+    #         # rodrigo.determinizar()
+    #         break
+    #     except EOFError:
+    #         break
 
 
 
@@ -68,11 +86,14 @@ def lerArquivoGR(arquivo):
         derivacoes = list(map(lambda x: x.strip(), linha[1].split("|")))
         for derivacao in derivacoes:
             alberto.addProducao(simbolo, derivacao)
-    alberto.derivar(6)
+
+    alberto.printar()
+    # alberto.derivar(6)
 
 
     #rodrigo = criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
-    rodrigo = criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
+    # rodrigo = criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
+    # rodrigo.
 
     # while(True):
     #     try:
@@ -81,5 +102,16 @@ def lerArquivoGR(arquivo):
     #     except EOFError:
     #         break
 
-arquivo = input('nome do arquivo:\n')
-lerArquivoAF(arquivo)
+def lerArquivoER(arquivo):
+    with open(arquivo, "r") as file:
+        linhas = file.read().split('\n')
+
+    for linha in linhas:
+        if len(linha) != 0:
+            l = linha.split(":")
+            julia = DefReg(l[0], l[1][1:])
+
+
+# lerArquivoAF(arquivo)
+
+lerArquivoER(arquivo)

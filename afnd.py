@@ -1,6 +1,6 @@
-from afd import *
+import afd
 
-class AFND(AFD):
+class AFND(afd.AFD):
 
     def __init__(self, estados, alfabeto, estadoInicial, estadosFinais):
         super().__init__(estados, alfabeto, estadoInicial, estadosFinais)
@@ -105,10 +105,10 @@ class AFND(AFD):
                     if self.traduzir(estadosTransicao) not in visitados:
                         filaEstados.append(estadosTransicao)
 
-        print()
-        for nt in novasTransicoes:
-            print(str(nt)+' -> '+str(novasTransicoes[nt]))
-            
+        # print()
+        # for nt in novasTransicoes:
+        #     print(str(nt)+' -> '+str(novasTransicoes[nt]))
+
         #afd = AFD()
         #return afd
 
