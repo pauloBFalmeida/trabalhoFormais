@@ -35,3 +35,5 @@ class DefReg:
 
     def forcarExpressoes(self):
         self.expressoes = self.cadeias
+
+    

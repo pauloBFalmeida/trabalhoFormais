@@ -33,13 +33,20 @@ def lerArquivoAF(arquivo):
         transicoes.append(linha.split(','))
 
     rodrigo = criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
-    rodrigo.printar()
+    rodrigo.minimizar()
     print()
-    geraldo = rodrigo.converterParaGR()
-    geraldo.printar()
-    print()
-    augusto = geraldo.converterParaAFND()
-    augusto.printar()
+    # geraldo = rodrigo.converterParaGR()
+    # geraldo.printar()
+    # print()
+    # augusto = geraldo.converterParaAFND()
+    # augusto.printar()
+    # rodrigo.eliminarInalcancaveis()
+    # rodrigo.printar()
+    # print()
+
+    # rodrigo.eliminarMortos()
+    # rodrigo.printar()
+
     # for t in transicoes:
     #     # print(t)
     #     for estadosFinais in t[2].split('-'):
@@ -112,4 +119,4 @@ def lerArquivoER(arquivo):
 arquivo = input()
 # lerArquivoAF(arquivo)
 
-lerArquivoER(arquivo)
+lerArquivoAF(arquivo)
