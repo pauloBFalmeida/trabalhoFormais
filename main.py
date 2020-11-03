@@ -33,8 +33,9 @@ def lerArquivoAF(arquivo):
         transicoes.append(linha.split(','))
 
     rodrigo = criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes)
-    rodrigo.minimizar()
-    print()
+    # rodrigo.minimizar()
+    # print()
+    return rodrigo
     # geraldo = rodrigo.converterParaGR()
     # geraldo.printar()
     # print()
@@ -116,7 +117,16 @@ def lerArquivoER(arquivo):
 
     julia = ER(linhas)
 
-arquivo = input()
+arquivo1 = input()
+arquivo2 = input()
 # lerArquivoAF(arquivo)
+rodrigo = lerArquivoAF(arquivo1)
+euclidio = lerArquivoAF(arquivo2)
 
-lerArquivoAF(arquivo)
+fausto = rodrigo.interseccao(euclidio)
+fausto.printar()
+# fausto = fausto.uniao(fausto)
+# fausto.printar()
+while True:
+    s = input()
+    print(fausto.computar(s))

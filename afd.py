@@ -31,6 +31,79 @@ class AFD():
             self.transicoes[estadoInicial][simbolo] = set()
         self.transicoes[estadoInicial][simbolo].add(estadoFinal)
 
+    def uniao(self, automato):
+        estados = []
+        estadosFinais = []
+        for e in self.estados:
+            for i in automato.estados:
+                estados.append(e + " & "  + i)
+                if e in self.estadosFinais or i in automato.estadosFinais:
+                    estadosFinais.append(e + " & " + i)
+
+        alfabeto = self.alfabeto.union(automato.alfabeto)
+
+        estadoInicial = (self.estadoInicial + " & " + automato.estadoInicial)
+
+        afdUniao = AFD(estados, alfabeto, estadoInicial, estadosFinais)
+
+        for e in self.estados:
+            if e not in self.transicoes:
+                continue
+            for i in automato.estados:
+                if i not in automato.transicoes:
+                    continue
+                for c in alfabeto:
+                    e_prox = e #'-'
+                    i_prox = i #'-'
+                    if c not in self.transicoes[e] or c not in automato.transicoes[i]:
+                        continue
+                    if c in self.transicoes[e]:
+                        e_prox = list(self.transicoes[e][c])[0]
+                    if c in automato.transicoes[i]:
+                        i_prox = list(automato.transicoes[i][c])[0]
+                    estado_atual =  e +' & '+ i
+                    estado_prox = e_prox +' & '+ i_prox
+                    afdUniao.addTransicao(estado_atual, c, estado_prox)
+
+        return afdUniao
+
+
+    def interseccao(self, automato):
+        estados = []
+        estadosFinais = []
+        for e in self.estados:
+            for i in automato.estados:
+                estados.append(e + " & "  + i)
+                if e in self.estadosFinais and i in automato.estadosFinais:
+                    estadosFinais.append(e + " & " + i)
+
+        alfabeto = self.alfabeto.union(automato.alfabeto)
+
+        estadoInicial = (self.estadoInicial + " & " + automato.estadoInicial)
+
+        afdInterseccao = AFD(estados, alfabeto, estadoInicial, estadosFinais)
+
+        for e in self.estados:
+            if e not in self.transicoes:
+                continue
+            for i in automato.estados:
+                if i not in automato.transicoes:
+                    continue
+                for c in alfabeto:
+                    e_prox = e #'-'
+                    i_prox = i #'-'
+                    if c not in self.transicoes[e] or c not in automato.transicoes[i]:
+                        continue
+                    if c in self.transicoes[e]:
+                        e_prox = list(self.transicoes[e][c])[0]
+                    if c in automato.transicoes[i]:
+                        i_prox = list(automato.transicoes[i][c])[0]
+                    estado_atual =  e +' & '+ i
+                    estado_prox = e_prox +' & '+ i_prox
+                    afdInterseccao.addTransicao(estado_atual, c, estado_prox)
+
+        return afdInterseccao
+
 
     def computar(self, s):
         estadoAtual = self.estadoInicial
