@@ -264,10 +264,12 @@ class AFD():
                     l += " | -"
             l += " "
             linhas.append(l)
+        # tamanho de chars de cada coluna
+        tamEntreBarras = []
+        for i in range(len(linhasSplit[0])):
+            maior = max([len(l[i]) for l in linhasSplit])
+            tamEntreBarras.append(maior)
         # deixar bonitinho no terminal
-        tamanho = [len(l) for l in linhas]
-        maiorLinha = linhas[tamanho.index(max(tamanho))]
-        tamEntreBarras = [len(i) for i in maiorLinha.split('|')] + [0]
         for linha in linhas:
             linha_out = ""
             linha_split = linha.split('|')
