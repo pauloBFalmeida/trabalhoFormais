@@ -53,17 +53,16 @@ class AFD():
                 if i not in automato.transicoes:
                     continue
                 for c in alfabeto:
-                    e_prox = e #'-'
-                    i_prox = i #'-'
-                    if c not in self.transicoes[e] or c not in automato.transicoes[i]:
-                        continue
+                    e_prox = '-'
+                    i_prox = '-'
                     if c in self.transicoes[e]:
                         e_prox = list(self.transicoes[e][c])[0]
                     if c in automato.transicoes[i]:
                         i_prox = list(automato.transicoes[i][c])[0]
-                    estado_atual =  e +' & '+ i
-                    estado_prox = e_prox +' & '+ i_prox
-                    afdUniao.addTransicao(estado_atual, c, estado_prox)
+                    if e_prox != '-' and i_prox != '-':
+                        estado_atual =  e +' & '+ i
+                        estado_prox = e_prox +' & '+ i_prox
+                        afdUniao.addTransicao(estado_atual, c, estado_prox)
 
         return afdUniao
 
@@ -90,17 +89,16 @@ class AFD():
                 if i not in automato.transicoes:
                     continue
                 for c in alfabeto:
-                    e_prox = e #'-'
-                    i_prox = i #'-'
-                    if c not in self.transicoes[e] or c not in automato.transicoes[i]:
-                        continue
+                    e_prox = '-'
+                    i_prox = '-'
                     if c in self.transicoes[e]:
                         e_prox = list(self.transicoes[e][c])[0]
                     if c in automato.transicoes[i]:
                         i_prox = list(automato.transicoes[i][c])[0]
-                    estado_atual =  e +' & '+ i
-                    estado_prox = e_prox +' & '+ i_prox
-                    afdInterseccao.addTransicao(estado_atual, c, estado_prox)
+                    if e_prox != '-' and i_prox != '-':
+                        estado_atual =  e +' & '+ i
+                        estado_prox = e_prox +' & '+ i_prox
+                        afdInterseccao.addTransicao(estado_atual, c, estado_prox)
 
         return afdInterseccao
 
@@ -161,10 +159,7 @@ class AFD():
         self.transicoes = novasTransicoes
 
 
-
-
     def eliminarInalcancaveis(self):
-
         visited = set()
         visited.add(self.estadoInicial)
         current = [self.estadoInicial]
@@ -199,54 +194,22 @@ class AFD():
 
 
     def reduzirParaEquivalencia(self):
-        i = 2
+        class Equivalencia():
+            def __init__(self, estado):
+                self.estado = estado
+                self.classe_index = None
+                self.transicoes = {}
+            def setClasse(self, classe_index):
+                self.classe_index = classe_index
+            def getClasse(self):
+                return classe_index
+            def addTransicao(self, c, classe):
+                self.transicoes[c] = classe
 
-        classes = [self.estadosFinais, self.estados.difference(self.estadosFinais)]
 
-        def getClasse(estado):
-            for i in range(len(classes)):
-                if estado in classes[i]:
-                    print("RETURNING")
-                    print(i)
-                    print(classes[i])
-                    return i
-            raise ZeroDivisionError
 
-        # falta considerar se a classe inteira transitar pro vazio
+        classesEquiv = [self.estados.difference(self.estadosFinais), self.estadosFinais]
 
-        while True:
-            new_classes = []
-            classeCriada = False
-            for classe in classes:
-                print(classe)
-                new_class = set()
-                for c in self.alfabeto:
-                    for e in classe:
-                        print(list(self.transicoes[min(classe)][c]))
-                        if e == min(classe):
-                            continue
-                        if e not in self.transicoes or c not in self.transicoes[e] or \
-                            min(classe) not in self.transicoes or c not in self.transicoes[min(classe)] or \
-                            len(self.transicoes[e][c]) != len(self.transicoes[min(classe)][c]) or \
-                            getClasse(list(self.transicoes[e][c])[0]) != getClasse(list(self.transicoes[min(classe)][c])[0]):
-                            classeCriada = True
-                            new_class.add(e)
-
-                new_classes.append(new_class)
-            for i in range(len(classes)):
-                for j in range(len(new_classes)):
-                    if len(new_classes[j]) == 0:
-                        continue
-                    print("iodsajiodsa")
-                    print(classes[i])
-                    print(new_classes[j])
-                    print()
-                    classes[i] = classes[i].intersection(new_classes[j])
-            classes = classes + new_classes
-            if not classeCriada:
-                break
-
-        print(classes)
 
 
     def minimizar(self):
@@ -256,13 +219,21 @@ class AFD():
 
 
     def printar(self):
-
+        estados = list(self.estados)
+        estados.sort() 
+        alfabeto = list(self.alfabeto)
+        alfabeto.sort() 
+        # header
+        linhas = []
         l = "    "
-        for c in self.alfabeto:
+        l2 = "----"
+        for c in alfabeto:
             l += (" | " + c + " ")
-        l += " |"
-        print(l)
-        for estado in self.estados:
+            l2 += "-|---"
+        linhas.append(l)
+        linhas.append(l2)
+        # cada estado
+        for estado in estados:
             l = ""
             if estado == self.estadoInicial:
                 l += "->"
@@ -273,10 +244,24 @@ class AFD():
             else:
                 l += " "
             l += str(estado)
-            for c in self.alfabeto:
+            for c in alfabeto:
                 if estado in self.transicoes and c in self.transicoes[estado]:
                     l += " | " + str(self.transicoes[estado][c])
                 else:
                     l += " | -"
-            l += " |"
-            print(l)
+            l += " "
+            linhas.append(l)
+        # deixar bonitinho no terminal
+        tamanho = [len(l) for l in linhas]
+        maiorLinha = linhas[tamanho.index(max(tamanho))]
+        tamEntreBarras = [len(i) for i in maiorLinha.split('|')] + [0]
+        for linha in linhas:
+            linha_out = ""
+            linha_split = linha.split('|')
+            for i in range(len(linha_split)):
+                secao = linha_split[i]
+                # para cada character a menos antes da barra
+                espacos = tamEntreBarras[i] - len(secao)
+                linha_out += secao + (" " * espacos) + '|'
+
+            print(linha_out)

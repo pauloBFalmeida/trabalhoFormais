@@ -118,15 +118,18 @@ def lerArquivoER(arquivo):
     julia = ER(linhas)
 
 arquivo1 = input()
-arquivo2 = input()
-# lerArquivoAF(arquivo)
+#lerArquivoAF(arquivo)
 rodrigo = lerArquivoAF(arquivo1)
-euclidio = lerArquivoAF(arquivo2)
+rodrigo.printar()
+#rodrigo.reduzirParaEquivalencia()
 
-fausto = rodrigo.interseccao(euclidio)
-fausto.printar()
-# fausto = fausto.uniao(fausto)
-# fausto.printar()
-while True:
-    s = input()
-    print(fausto.computar(s))
+#arquivo2 = input()
+#euclidio = lerArquivoAF(arquivo2)
+#fausto = rodrigo.interseccao(euclidio)
+#fausto.printar()
+#fausto = fausto.uniao(fausto)
+#fausto.printar()
+
+#while True:
+#    s = input()
+#    print(fausto.computar(s))
