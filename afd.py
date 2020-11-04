@@ -4,6 +4,8 @@ from gr import *
 
 class AFD():
 
+# ======= Criacao =========
+
     def __init__(self, estados, alfabeto, estadoInicial, estadosFinais):
         self.estados = set(estados)
         self.alfabeto = set(alfabeto)
@@ -30,6 +32,8 @@ class AFD():
         if not simbolo in self.transicoes[estadoInicial]:
             self.transicoes[estadoInicial][simbolo] = set()
         self.transicoes[estadoInicial][simbolo].add(estadoFinal)
+
+# ======= Uniao e Interseccao =========
 
     def uniao(self, automato):
         estados = []
@@ -101,7 +105,8 @@ class AFD():
                         afdInterseccao.addTransicao(estado_atual, c, estado_prox)
 
         return afdInterseccao
-
+    
+# ======= Computar entrada =========
 
     def computar(self, s):
         estadoAtual = self.estadoInicial
@@ -118,6 +123,8 @@ class AFD():
             return True
         return False
 
+# ======= Converter para GR =========
+
     def converterParaGR(self):
         gramatica = GR(self.estadoInicial, list(self.alfabeto), list(self.estados))
 
@@ -127,6 +134,8 @@ class AFD():
                 if list(self.transicoes[estado][c])[0] in self.estadosFinais:
                     gramatica.addProducao(str(estado), c)
         return gramatica
+
+# ======= Minimizar =========
 
     def eliminarMortos(self):
 
@@ -217,6 +226,7 @@ class AFD():
         self.eliminarMortos()
         self.reduzirParaEquivalencia()
 
+# ======= Printar no terminal =========
 
     def printar(self):
         estados = list(self.estados)
@@ -235,15 +245,18 @@ class AFD():
         # cada estado
         for estado in estados:
             l = ""
+            # estado inicial
             if estado == self.estadoInicial:
                 l += "->"
             else:
                 l += "  "
+            # estado inicial
             if estado in self.estadosFinais:
                 l += "*"
             else:
                 l += " "
             l += str(estado)
+            # cada letra do alfabeto
             for c in alfabeto:
                 if estado in self.transicoes and c in self.transicoes[estado]:
                     l += " | " + str(self.transicoes[estado][c])
