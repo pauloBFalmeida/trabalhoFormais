@@ -234,18 +234,21 @@ class AFD():
                     primeiro = True
                     classe_apontada = None
                     nova_classe = set()
+                    # print("character = " + c)
                     for elem in classe:
-                        if primeiro:
-                            primeiro = False
+                        primeiro = True
+                        classe_apontada_primeiro = None
+                        nova_classe = set()
+                        for elem in classe:
+                            classe_apontada = None
                             if elem in self.transicoes and c in self.transicoes[elem]:
-                                # print(self.transicoes[elem][c])
                                 classe_apontada = refs[list(self.transicoes[elem][c])[0]].classe_index
-                        else:
-                            if (not (classe_apontada is None and (elem not in self.transicoes or c not in self.transicoes[elem]))) \
-                               or (elem in self.transicoes and c in self.transicoes[elem] and refs[list(self.transicoes[elem][c])[0]].classe_index != classe_apontada) :
-                               nova_classe.add(elem)
-                               # print("novaclasse " + "elem")
-                               done = False
+                            if primeiro:
+                                primeiro = False
+                                classe_apontada_primeiro = classe_apontada
+                            elif classe_apontada != classe_apontada_primeiro:
+                                nova_classe.add(elem)
+                                done = False
                     if len(nova_classe) > 0:
                         classesEquiv.append(nova_classe)
                         print(classesEquiv)
