@@ -105,7 +105,7 @@ class AFD():
                         afdInterseccao.addTransicao(estado_atual, c, estado_prox)
 
         return afdInterseccao
-    
+
 # ======= Computar entrada =========
 
     def computar(self, s):
@@ -155,17 +155,17 @@ class AFD():
         self.estados = self.estados.intersection(produtivos)
         self.estadosFinais = self.estadosFinais.intersection(produtivos)
 
-        novasTransicoes = {}
+        # novasTransicoes = {}
+        transicoes = self.transicoes
+        self.transicoes =  {}
 
-        for estado in self.transicoes:
-            novasTransicoes[estado] = {}
-            for c in self.transicoes[estado]:
-                novasTransicoes[estado][c] = set()
-                for s in self.transicoes[estado][c]:
+        for estado in transicoes:
+            for c in transicoes[estado]:
+                for s in transicoes[estado][c]:
                     if estado in produtivos and s in produtivos:
-                        novasTransicoes[estado][c].add(s)
+                        self.addTransicao(estado, c, s)
 
-        self.transicoes = novasTransicoes
+
 
 
     def eliminarInalcancaveis(self):
@@ -189,17 +189,17 @@ class AFD():
         self.estados = self.estados.intersection(visited)
         self.estadosFinais = self.estadosFinais.intersection(visited)
 
-        novasTransicoes = {}
+        # novasTransicoes = {}
+        transicoes = self.transicoes
+        self.transicoes = {}
 
-        for estado in self.transicoes:
-            novasTransicoes[estado] = {}
-            for c in self.transicoes[estado]:
-                novasTransicoes[estado][c] = set()
-                for s in self.transicoes[estado][c]:
+        for estado in transicoes:
+            for c in transicoes[estado]:
+                for s in transicoes[estado][c]:
                     if estado in visited and s in visited:
-                        novasTransicoes[estado][c].add(s)
+                        self.addTransicao(estado, c, s)
 
-        self.transicoes = novasTransicoes
+        # self.transicoes = novasTransicoes
 
 
     def reduzirParaEquivalencia(self):
@@ -210,29 +210,95 @@ class AFD():
                 self.transicoes = {}
             def setClasse(self, classe_index):
                 self.classe_index = classe_index
-            def getClasse(self):
-                return classe_index
             def addTransicao(self, c, classe):
                 self.transicoes[c] = classe
 
-
+        refs = {}
+        for e in self.estados:
+            refs[e] = Equivalencia(e)
+            if e in self.estadosFinais:
+                refs[e].classe_index = 1
+            else:
+                refs[e].classe_index = 0
+        for i in self.estados:
+            print(i)
+        print("rdjsaiodjasijdisaj")
 
         classesEquiv = [self.estados.difference(self.estadosFinais), self.estadosFinais]
 
+        done = False
+        while not done:
+            done = True
+            for c in self.alfabeto:
+                for classe in classesEquiv.copy():
+                    primeiro = True
+                    classe_apontada = None
+                    nova_classe = set()
+                    for elem in classe:
+                        if primeiro:
+                            primeiro = False
+                            if elem in self.transicoes and c in self.transicoes[elem]:
+                                # print(self.transicoes[elem][c])
+                                classe_apontada = refs[list(self.transicoes[elem][c])[0]].classe_index
+                        else:
+                            if (not (classe_apontada is None and (elem not in self.transicoes or c not in self.transicoes[elem]))) \
+                               or (elem in self.transicoes and c in self.transicoes[elem] and refs[list(self.transicoes[elem][c])[0]].classe_index != classe_apontada) :
+                               nova_classe.add(elem)
+                               # print("novaclasse " + "elem")
+                               done = False
+                    if len(nova_classe) > 0:
+                        classesEquiv.append(nova_classe)
+                        print(classesEquiv)
+                        index = -1
+                        for e in nova_classe:
+                            index = refs[e].classe_index
+                            break
+                        classesEquiv[index] = classesEquiv[index].difference(nova_classe)
+                        for e in nova_classe:
+                            refs[e].classe_index = len(classesEquiv) - 1
+        # print(classesEquiv)
+        print(classesEquiv)
+        estados = []
+        estadosFinais = []
+        for classe in classesEquiv:
+            for e in classe:
+                if e in self.estadosFinais:
+                    estadosFinais.append(e)
+                estados.append(e)
+                break
+
+        estadoInicial = [e for e in classesEquiv[refs[self.estadoInicial].classe_index]][0]
+
+        # estadosFinais = []
+
+        self.estados = set(estados)
+        self.estadoInicial = estadoInicial
+        self.estadosFinais = set(estadosFinais)
+
+        transicoes = self.transicoes
+        self.transicoes = {}
+
+        for e in estados:
+            for c in self.alfabeto:
+                if e in transicoes and c in transicoes[e]:
+                    self.addTransicao(e, c, estados[refs[list(transicoes[e][c])[0]].classe_index])
 
 
     def minimizar(self):
+        print(self.estados)
         self.eliminarInalcancaveis()
+        self.printar()
         self.eliminarMortos()
+        self.printar()
         self.reduzirParaEquivalencia()
 
 # ======= Printar no terminal =========
 
     def printar(self):
         estados = list(self.estados)
-        estados.sort() 
+        estados.sort()
         alfabeto = list(self.alfabeto)
-        alfabeto.sort() 
+        alfabeto.sort()
         # header
         linhas = []
         l = "    "
@@ -263,9 +329,10 @@ class AFD():
                 else:
                     l += " | -"
             l += " "
-            linhas.append(l)
+            linhas.append(l.replace("{", "").replace("}", "").replace("\'", ""))
         # tamanho de chars de cada coluna
         tamEntreBarras = []
+        linhasSplit = [i.split("|") for i in linhas]
         for i in range(len(linhasSplit[0])):
             maior = max([len(l[i]) for l in linhasSplit])
             tamEntreBarras.append(maior)
