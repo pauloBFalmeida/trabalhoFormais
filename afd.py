@@ -189,17 +189,14 @@ class AFD():
         self.estados = self.estados.intersection(visited)
         self.estadosFinais = self.estadosFinais.intersection(visited)
 
-        # novasTransicoes = {}
+        # atualizar transicoes
         transicoes = self.transicoes
         self.transicoes = {}
-
         for estado in transicoes:
             for c in transicoes[estado]:
                 for s in transicoes[estado][c]:
                     if estado in visited and s in visited:
                         self.addTransicao(estado, c, s)
-
-        # self.transicoes = novasTransicoes
 
 
     def reduzirParaEquivalencia(self):
@@ -220,9 +217,6 @@ class AFD():
                 refs[e].classe_index = 1
             else:
                 refs[e].classe_index = 0
-        for i in self.estados:
-            print(i)
-        print("rdjsaiodjasijdisaj")
 
         classesEquiv = [self.estados.difference(self.estadosFinais), self.estadosFinais]
 
@@ -234,7 +228,6 @@ class AFD():
                     primeiro = True
                     classe_apontada = None
                     nova_classe = set()
-                    # print("character = " + c)
                     for elem in classe:
                         primeiro = True
                         classe_apontada_primeiro = None
@@ -251,7 +244,6 @@ class AFD():
                                 done = False
                     if len(nova_classe) > 0:
                         classesEquiv.append(nova_classe)
-                        print(classesEquiv)
                         index = -1
                         for e in nova_classe:
                             index = refs[e].classe_index
@@ -259,8 +251,8 @@ class AFD():
                         classesEquiv[index] = classesEquiv[index].difference(nova_classe)
                         for e in nova_classe:
                             refs[e].classe_index = len(classesEquiv) - 1
-        # print(classesEquiv)
-        print(classesEquiv)
+
+        # ajustar estados
         estados = []
         estadosFinais = []
         for classe in classesEquiv:
@@ -269,31 +261,54 @@ class AFD():
                     estadosFinais.append(e)
                 estados.append(e)
                 break
-
+            
         estadoInicial = [e for e in classesEquiv[refs[self.estadoInicial].classe_index]][0]
-
-        # estadosFinais = []
-
+        # atualizar estados
         self.estados = set(estados)
         self.estadoInicial = estadoInicial
         self.estadosFinais = set(estadosFinais)
-
+        # atualizar transicoes
         transicoes = self.transicoes
         self.transicoes = {}
-
-        for e in estados:
-            for c in self.alfabeto:
-                if e in transicoes and c in transicoes[e]:
-                    self.addTransicao(e, c, estados[refs[list(transicoes[e][c])[0]].classe_index])
+        for e in transicoes:
+            for c in transicoes[e]:
+                for t in self.transicoes[e][c]:
+                    self.addTransicao(e, c, estados[refs[t].classe_index])
 
 
     def minimizar(self):
-        print(self.estados)
         self.eliminarInalcancaveis()
-        self.printar()
         self.eliminarMortos()
-        self.printar()
         self.reduzirParaEquivalencia()
+
+# ======= Ajustar estados e transicoes para numeros de [0..nEstados] =======
+
+    def ajustarNomeEstados(self):
+        # salvar antigos e zerar atributos
+        estados = self.estados
+        estadosFinais = self.estadosFinais
+        estadoInicial = self.estadoInicial
+        transicoes = self.transicoes
+        self.estados = set()
+        self.estadosFinais = set()
+        self.estadoInicial = '0'
+        self.transicoes = {}
+        # linkar novo nome com estado
+        nomeEstados = {estadoInicial: self.estadoInicial}
+        for e in [e for e in estados if e != estadoInicial]:
+            nomeEstados[e] = str(len(nomeEstados))
+        # atualizar nome dos estados
+        for e in estados:
+            self.estados.add(nomeEstados[e])
+            if e in estadosFinais:
+                self.estadosFinais.add(nomeEstados[e])
+        # mudar as transicoes
+        for e in transicoes:
+            for c in transicoes[e]:
+                ne = nomeEstados[e]
+                for t in transicoes[e][c]:
+                    nt = nomeEstados[t]
+                    self.addTransicao(ne, c, nt)
 
 # ======= Printar no terminal =========
 
@@ -350,3 +365,35 @@ class AFD():
                 linha_out += secao + (" " * espacos) + '|'
 
             print(linha_out)
+
+# ======= Exportar para Arquivo =========
+        
+    def exportarParaArquivo(self, nomeArquivo):
+        # ajustar os estados para ficarem bonitinhos
+        self.ajustarNomeEstados()
+        # texto para ser escrito no arquivo
+        texto = ""
+        # numero de estados
+        texto += str(len(self.estados)) + '\n'
+        # estado inicial
+        texto += self.estadoInicial + '\n'
+        # estados finais
+        for e in self.estadosFinais:
+            texto += e + ','
+        texto = texto[:-1] + '\n'
+        # alfabeto
+        for c in self.alfabeto: 
+            texto += str(c) + ','
+        texto = texto[:-1] + '\n'
+        # transições (uma por linha)
+        for e in self.transicoes:
+            for c in self.transicoes[e]:
+                texto += e + ',' + c + ','
+                for t in self.transicoes[e][c]:
+                    texto += t + '-'
+                texto = texto[:-1] + '\n'
+        # escrever no arquivo
+        with open(nomeArquivo, 'w') as arquivo:
+            arquivo.write(texto)
+
+

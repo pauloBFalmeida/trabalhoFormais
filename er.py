@@ -1,4 +1,5 @@
 from defreg import *
+from nodo import Nodo
 
 class ER():
     def __init__(self, definicoes):
@@ -37,3 +38,12 @@ class ER():
         for i in self.instancias:
             print(self.instancias[i].cadeias)
             print(self.instancias[i].expressoes)
+
+
+    def converterParaAFD(self):
+        n = Nodo(1)
+
+
+
+                
+
