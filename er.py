@@ -91,3 +91,6 @@ class ER():
             # print("doneRefs")
 
             self.instancias[id].receberRefs(resolucoes, nchar)
+
+
+    def converterParaAFD(self): pass

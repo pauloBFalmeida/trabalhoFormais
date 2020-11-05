@@ -1,4 +1,5 @@
 from nodo import Nodo
+from afd import AFD
 
 class DefReg:
 
@@ -31,7 +32,7 @@ class DefReg:
             if s[inicio:i] != '':
                 self.cadeias.append(s[inicio:i])
 
-        # print(self.cadeias)
+        # #print(self.cadeias)
 
     def pedirRefs(self):
         return self.cadeias
@@ -47,8 +48,8 @@ class DefReg:
 
 
     def forcarExpressoes(self):
-        # print("para id=" + self.id)
-        # print("forcando expressao = " + str(self.cadeias))
+        # #print("para id=" + self.id)
+        # #print("forcando expressao = " + str(self.cadeias))
         self.expressoes = self.cadeias
 
     def prec(self, op):
@@ -72,7 +73,7 @@ class DefReg:
             nova_expressao.append(self.expressoes[i+1])
 
         self.expressoes = nova_expressao
-        print(self.expressoes)
+        #print(self.expressoes)
 
         # transformar para prefixa
         expressoes = self.expressoes
@@ -99,8 +100,8 @@ class DefReg:
         while len(stack) > 0:
             output.append(stack.pop())
         output.reverse()
-        print("OUTPUT!")
-        print(output)
+        #print("OUTPUT!")
+        #print(output)
         self.operacoes = output
 
     def criarArvore(self):
@@ -109,6 +110,9 @@ class DefReg:
             self.raiz = Nodo(self.cadeias[0])
             return self.raiz
 
+        #print('expressoes')
+        #print(self.expressoes)
+        #print()
         self.prepararExpressao()
         operacoes = self.operacoes
         c = operacoes[0]
@@ -146,7 +150,8 @@ class DefReg:
         else:
             fd = nodo.filhoDir.item
 
-        print(f'{nodo.item} -> {fe}, -> {fd}')
+        #print(f'{nodo.item} -> {fe}, -> {fd}')
+        #print(f'{nodo.item} fp:{nodo.firstPos} ls:{nodo.lastPos}')
 
 
         if nodo.filhoEsq is not None:
@@ -222,20 +227,61 @@ class DefReg:
 
     def converterParaAFD(self):
         tag = DefReg('#', '#')
-        tag.forcarExpressoes
+        tag.forcarExpressoes()
         backup = self.expressoes
 
         self.expressoes = ['('] + self.expressoes + [')', tag]
-        self.criarArvore()
+        raiz = self.criarArvore()
         self.calcularNullable()
 
         dict_posicoes = self.calcularPos()
 
-        self.calcularFirstPos()
-        self.calcularLastPos()
+        raiz.calcularFirstPos()
+        raiz.calcularLastPos()
         follow_pos = {}
         for i in dict_posicoes:
             follow_pos[i] = set()
         self.calcularFollowPos(follow_pos)
+        #print('followpos   ')
+        for i in follow_pos:
+            pass
+            #print(str(i)+" "+str(follow_pos[i]))
 
         self.expressoes = backup
+
+        # afd
+        alfabeto = set([c.item for c in [dict_posicoes[i] for i in dict_posicoes]])
+        alfabeto.discard('#')
+
+        dEstados = [raiz.getFirstPos()]
+        naoMarcados = [raiz.getFirstPos()]
+        dTransicoes = {}
+
+        while len(naoMarcados) > 0:
+            s = naoMarcados.pop()
+            for c in alfabeto:
+                estadosP = [p for p in s if dict_posicoes[p].item == c]
+                u = set()
+                for p in estadosP:
+                    u = u.union(follow_pos[p])
+                if len(u) > 0:
+                    if u not in dEstados:
+                        dEstados.append(u)
+                        naoMarcados.append(u)
+                    if str(s) not in dTransicoes:
+                       dTransicoes[str(s)] = {}
+                    if c not in dTransicoes[str(s)]:
+                       dTransicoes[str(s)][c] = {}
+                    dTransicoes[str(s)][c] = str(u)
+        # criar AFD
+        estados = [str(e) for e in dEstados]
+        estadoInicial = str(raiz.getFirstPos())
+        lastPos = [p for p in raiz.getLastPos()][0]
+        estadosFinais = [str(e) for e in dEstados if lastPos in e]
+        afd = AFD(estados, alfabeto, estadoInicial, estadosFinais)
+        # add transicoes ao AFD
+        for s in dTransicoes:
+            for c in dTransicoes[s]:
+                afd.addTransicao(s, c, dTransicoes[s][c])
+        # retornar AFD
+        return afd

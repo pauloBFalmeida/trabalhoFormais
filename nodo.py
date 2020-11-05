@@ -15,15 +15,21 @@ class Nodo():
             else:
                 self.nullable = False
         elif self.item == "|":
-            self.nullable = filhoEsq.calcularNullable() or filhoDir.calcularNullable()
+            esq = self.filhoEsq.calcularNullable()
+            dir = self.filhoDir.calcularNullable()
+            self.nullable = esq or dir
         elif self.item == ".":
-            self.nullable = filhoEsq.calcularNullable() and filhoDir.calcularNullable()
+            esq = self.filhoEsq.calcularNullable()
+            dir = self.filhoDir.calcularNullable()
+            self.nullable = esq and dir
         elif self.item  == "*":
+            self.filhoEsq.calcularNullable()
             self.nullable = True
         elif self.item == "?":
+            self.filhoEsq.calcularNullable()
             self.nullable = True
         elif self.item == "+":
-            self.nullable = filhoEsq.calcularNullable()
+            self.nullable = self.filhoEsq.calcularNullable()
         return self.nullable
 
     def calcularPos(self, pos, dict_posicoes):
@@ -32,9 +38,9 @@ class Nodo():
             dict_posicoes[pos[0]] = self
             pos[0]+=1
         else:
-            self.filhoEsq.calcularPos(pos)
+            self.filhoEsq.calcularPos(pos, dict_posicoes)
             if self.filhoDir is not None:
-                self.filhoDir.calcularPos(pos)
+                self.filhoDir.calcularPos(pos, dict_posicoes)
         return
 
     def calcularFirstPos(self):
@@ -44,18 +50,19 @@ class Nodo():
             else:
                 self.firstPos = {self.pos}
         elif self.item == "|":
-            self.firstPos = filhoEsq.calcularFirstPos().union(filhoDir.calcularFirstPos())
+            self.firstPos = self.filhoEsq.calcularFirstPos().union(self.filhoDir.calcularFirstPos())
         elif self.item == ".":
-            if filhoEsq.nullable:
-                self.firstPos = filhoEsq.calcularFirstPos().union(filhoDir.calcularFirstPos())
+            if self.filhoEsq.nullable:
+                self.firstPos = self.filhoEsq.calcularFirstPos().union(self.filhoDir.calcularFirstPos())
             else:
-                self.firstPos = filhoEsq.calcularFirstPos()
+                self.firstPos = self.filhoEsq.calcularFirstPos()
+                self.filhoDir.calcularFirstPos()
         elif self.item  == "*":
-            self.firstPos = filhoEsq.calcularFirstPos()
+            self.firstPos = self.filhoEsq.calcularFirstPos()
         elif self.item == "?":
-            self.firstPos = filhoEsq.calcularFirstPos()
+            self.firstPos = self.filhoEsq.calcularFirstPos()
         elif self.item == "+":
-            self.firstPos = filhoEsq.calcularFirstPos()
+            self.firstPos = self.filhoEsq.calcularFirstPos()
         return self.firstPos
 
 
@@ -66,23 +73,28 @@ class Nodo():
             else:
                 self.lastPos = {self.pos}
         elif self.item == "|":
-            self.lastPos = filhoEsq.calcularLastPos().union(filhoDir.calcularLastPos())
+            self.lastPos = self.filhoEsq.calcularLastPos().union(self.filhoDir.calcularLastPos())
         elif self.item == ".":
-            if filhoDir.nullable:
-                self.lastPos = filhoEsq.calcularLastPos().union(filhoDir.calcularLastPos())
+            if self.filhoDir.nullable:
+                self.lastPos = self.filhoEsq.calcularLastPos().union(self.filhoDir.calcularLastPos())
             else:
-                self.lastPos = filhoDir.calcularLastPos()
+                self.lastPos = self.filhoDir.calcularLastPos()
+                self.filhoEsq.calcularLastPos()
         elif self.item  == "*":
-            self.lastPos = filhoEsq.calcularLastPos()
+            self.lastPos = self.filhoEsq.calcularLastPos()
         elif self.item == "?":
-            self.lastPos = filhoEsq.calcularLastPos()
+            self.lastPos = self.filhoEsq.calcularLastPos()
         elif self.item == "+":
-            self.lastPos = filhoEsq.calcularLastPos()
+            self.lastPos = self.filhoEsq.calcularLastPos()
         return self.lastPos
 
     def calcularFollowPos(self, follow_pos):
         if self.filhoEsq is None and self.filhoDir is None:
             return
+
+        self.filhoEsq.calcularFollowPos(follow_pos)
+        if self.filhoDir is not None:
+            self.filhoDir.calcularFollowPos(follow_pos)
 
         if self.item == ".":
             for i in self.filhoEsq.lastPos:
@@ -94,10 +106,11 @@ class Nodo():
             for i in self.lastPos:
                 follow_pos[i] = follow_pos[i].union(self.firstPos)
 
-        self.filhoEsq.calcularFollowPos(follow_pos)
-        if self.filhoDir is not None:
-            self.filhoDir.calcularFollowPos(follow_pos)
 
     def getFirstPos(self):
         if len(self.firstPos) > 0:
             return self.firstPos
+        
+    def getLastPos(self):
+        if len(self.lastPos) > 0:
+            return self.lastPos

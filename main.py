@@ -13,7 +13,6 @@ def criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
 def criarAFND(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
     afnd = AFND([str(i) for i in range(int(nEstados))], alfabeto, estadoInicial, estadosFinais)
     for t in transicoes:
-        # print(t)
         for estadosFinais in t[2].split('-'):
             afnd.addTransicao(t[0],t[1],estadosFinais)
     return afnd
@@ -123,9 +122,10 @@ def lerArquivoER(arquivo):
         # print(f"e = {e}" )
         # print(julia.instancias[e].expressoes)
         # julia.instancias[e].prepararExpressao()
-        julia.instancias[e].criarArvore()
+        #julia.instancias[e].criarArvore()
+        #julia.instancias[e].printarArvore()
+        julia.instancias[e].converterParaAFD()
         julia.instancias[e].printarArvore()
-    # julia.converterParaAFD()
 
 print('lendo ER')
 arquivo = input()

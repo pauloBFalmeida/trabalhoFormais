@@ -57,7 +57,7 @@ class AFND(AFD):
 
 # ======= Codificacao de conjunto de estados =========
 
-    # codificacao 'one hot' para um conjunto de estados
+    # codificacao 'binario' para um conjunto de estados
     def traduzir(self, conjunto):
         k = 0
         for i in range(len(self.estados)):
@@ -103,7 +103,7 @@ class AFND(AFD):
                     if e in self.transicoes and c in self.transicoes[e]:
                         for p in self.transicoes[e][c]:
                             estadosTransicao.update(self.epsilonFechos[p])
-                # conjunto de estados recebe uma codificacao 'one hot' para cada estado presente
+                # conjunto de estados recebe uma codificacao 'binaria' para cada estado presente
                 # e adiciono uma transicao partindo da codigo do conj. atual de estados
                 # por um char 'c' para um codigo do conj. alcancavel de estados
                 if len(estadosTransicao) > 0:
