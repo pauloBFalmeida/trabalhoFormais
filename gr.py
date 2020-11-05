@@ -60,14 +60,14 @@ class GR():
                         self.terminais,
                         self.simboloInicial,
                         ["#"])
-
+        # adiciono as transicoes no AF
         for simbolo in self.producoes:
             for prod in self.producoes[simbolo]:
                 if len(prod) == 1:
                     automato.addTransicao(simbolo, prod[0], '#')
                 else:
                     automato.addTransicao(simbolo, prod[0], prod[1])
-
+        # ajusto os nomes e retorno o automato
         return automato
     
 # ======= Print no terminal =========

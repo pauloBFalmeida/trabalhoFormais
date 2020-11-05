@@ -19,43 +19,46 @@ class AFD():
     def addAlfabeto(self, simbolo):
         self.alfabeto.add(simbolo)
 
-    def addTransicao(self, estadoInicial, simbolo, estadoFinal):
+    def addTransicao(self, estadoInicial, simbolo, estadoProximo):
         if not estadoInicial in self.estados:
             raise EstadoInexistente(str(estadoInicial))
-        if not estadoFinal in self.estados:
-            raise EstadoInexistente(str(estadoFinal))
+        if not estadoProximo in self.estados:
+            raise EstadoInexistente(str(estadoProximo))
         if not simbolo in self.alfabeto:
             raise SimboloInexistente(str(simbolo))
-
+        # se existir o estado, simbolo e proximo estado entao adiciono a transicao
         if not estadoInicial in self.transicoes:
             self.transicoes[estadoInicial] = {}
         if not simbolo in self.transicoes[estadoInicial]:
             self.transicoes[estadoInicial][simbolo] = set()
-        self.transicoes[estadoInicial][simbolo].add(estadoFinal)
+        self.transicoes[estadoInicial][simbolo].add(estadoProximo)
 
-# ======= Uniao e Interseccao =========
+# ======= Uniao =========
 
     def uniao(self, automato):
         estados = []
         estadosFinais = []
+        # cada estado da uniao eh dado pela uniao de cada estado nesse AF
+        # com todos os estados do outro AF
         for e in self.estados:
             for i in automato.estados:
                 estados.append(e + " & "  + i)
+                # se um estado for final entao acrescento o estado da uniao nos finais
                 if e in self.estadosFinais or i in automato.estadosFinais:
                     estadosFinais.append(e + " & " + i)
-
+        # alfabeto e estado inicial sao unidos para criar o AFD da uniao
         alfabeto = self.alfabeto.union(automato.alfabeto)
-
         estadoInicial = (self.estadoInicial + " & " + automato.estadoInicial)
-
         afdUniao = AFD(estados, alfabeto, estadoInicial, estadosFinais)
-
+        # para cada estado desse AF que tenha transicoes
+        # pego cada estado do outro AF que tenha transicoes
         for e in self.estados:
             if e not in self.transicoes:
                 continue
             for i in automato.estados:
                 if i not in automato.transicoes:
                     continue
+                # pego as transicoes para cada caracter do alfabeto
                 for c in alfabeto:
                     e_prox = '-'
                     i_prox = '-'
@@ -63,35 +66,40 @@ class AFD():
                         e_prox = list(self.transicoes[e][c])[0]
                     if c in automato.transicoes[i]:
                         i_prox = list(automato.transicoes[i][c])[0]
+                    # se ambos tiverem transicoes nao nulas, adiciono a transicao a uniao
                     if e_prox != '-' and i_prox != '-':
                         estado_atual =  e +' & '+ i
                         estado_prox = e_prox +' & '+ i_prox
                         afdUniao.addTransicao(estado_atual, c, estado_prox)
-
+        # retorno o afd da uniao
         return afdUniao
 
+# ======= Interseccao =========
 
     def interseccao(self, automato):
         estados = []
         estadosFinais = []
+        # cada estado da uniao eh dado pela uniao de cada estado nesse AF
+        # com todos os estados do outro AF
         for e in self.estados:
             for i in automato.estados:
                 estados.append(e + " & "  + i)
+                # se ambos estados forem finais entao acrescento o estado nos finais
                 if e in self.estadosFinais and i in automato.estadosFinais:
                     estadosFinais.append(e + " & " + i)
-
+        # alfabeto e estado inicial sao unidos para criar o AFD da interseccao
         alfabeto = self.alfabeto.union(automato.alfabeto)
-
         estadoInicial = (self.estadoInicial + " & " + automato.estadoInicial)
-
         afdInterseccao = AFD(estados, alfabeto, estadoInicial, estadosFinais)
-
+        # para cada estado desse AF que tenha transicoes
+        # pego cada estado do outro AF que tenha transicoes
         for e in self.estados:
             if e not in self.transicoes:
                 continue
             for i in automato.estados:
                 if i not in automato.transicoes:
                     continue
+                # pego as transicoes para cada caracter do alfabeto
                 for c in alfabeto:
                     e_prox = '-'
                     i_prox = '-'
@@ -99,26 +107,27 @@ class AFD():
                         e_prox = list(self.transicoes[e][c])[0]
                     if c in automato.transicoes[i]:
                         i_prox = list(automato.transicoes[i][c])[0]
+                    # se ambos tiverem transicoes nao nulas, adiciono a transicao a uniao
                     if e_prox != '-' and i_prox != '-':
                         estado_atual =  e +' & '+ i
                         estado_prox = e_prox +' & '+ i_prox
                         afdInterseccao.addTransicao(estado_atual, c, estado_prox)
-
+        # retorno o afd da interseccao
         return afdInterseccao
 
 # ======= Computar entrada =========
 
-    def computar(self, s):
+    def computar(self, entrada):
         estadoAtual = self.estadoInicial
-
-        for c in s:
+        # para cada caracter na entrada
+        for c in entrada:
             if c not in self.alfabeto:
                 raise SimboloInexistente(str(c))
             if c not in self.transicoes[estadoAtual]:
                 raise TransicaoInexistente(str(estadoAtual), c)
-
+            # avanco para o proximo estado pela transicao
             estadoAtual = list(self.transicoes[estadoAtual][c])[0]
-
+        # se estiver nos estados finais aceito senao rejeito
         if estadoAtual in self.estadosFinais:
             return True
         return False
@@ -155,7 +164,6 @@ class AFD():
         self.estados = self.estados.intersection(produtivos)
         self.estadosFinais = self.estadosFinais.intersection(produtivos)
 
-        # novasTransicoes = {}
         transicoes = self.transicoes
         self.transicoes =  {}
 
@@ -272,8 +280,7 @@ class AFD():
         self.transicoes = {}
         for e in transicoes:
             for c in transicoes[e]:
-                print(e+ ' ' + c)
-                for t in self.transicoes[e][c]:
+                for t in transicoes[e][c]:
                     self.addTransicao(e, c, estados[refs[t].classe_index])
 
 

@@ -2,6 +2,9 @@ from defreg import *
 from nodo import Nodo
 
 class ER():
+
+# ======= Criacao =========
+
     def __init__(self, definicoes):
         self.instancias = {}
         # self.defs = []
@@ -43,6 +46,7 @@ class ER():
     def converterParaAFD(self):
         n = Nodo(1)
 
+    
 
 
                 
