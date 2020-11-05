@@ -4,7 +4,7 @@ class AFND(afd.AFD):
 
     def __init__(self, estados, alfabeto, estadoInicial, estadosFinais):
         super().__init__(estados, alfabeto, estadoInicial, estadosFinais)
-        self.alfabeto.add("&")
+        #self.alfabeto.add("&")
         self.epsilonFechos = {}
 
 

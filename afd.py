@@ -272,6 +272,7 @@ class AFD():
         self.transicoes = {}
         for e in transicoes:
             for c in transicoes[e]:
+                print(e+ ' ' + c)
                 for t in self.transicoes[e][c]:
                     self.addTransicao(e, c, estados[refs[t].classe_index])
 
@@ -347,7 +348,8 @@ class AFD():
                 else:
                     l += " | -"
             l += " "
-            linhas.append(l.replace("{", "").replace("}", "").replace("\'", ""))
+            l = l.translate(str.maketrans({'{': None, '}': None, "\'": None}))
+            linhas.append(l)
         # tamanho de chars de cada coluna
         tamEntreBarras = []
         linhasSplit = [i.split("|") for i in linhas]
@@ -369,10 +371,9 @@ class AFD():
 # ======= Exportar para Arquivo =========
         
     def exportarParaArquivo(self, nomeArquivo):
+        texto = ""
         # ajustar os estados para ficarem bonitinhos
         self.ajustarNomeEstados()
-        # texto para ser escrito no arquivo
-        texto = ""
         # numero de estados
         texto += str(len(self.estados)) + '\n'
         # estado inicial
@@ -395,5 +396,3 @@ class AFD():
         # escrever no arquivo
         with open(nomeArquivo, 'w') as arquivo:
             arquivo.write(texto)
-
-
