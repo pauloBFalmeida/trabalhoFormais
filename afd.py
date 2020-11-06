@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from erros import *
-from gr import *
+from gr import GR
 
 class AFD():
 
@@ -136,7 +136,8 @@ class AFD():
 
     def converterParaGR(self):
         gramatica = GR(self.estadoInicial, list(self.alfabeto), list(self.estados))
-
+        # para cada transicao adiciono uma producao partindo do estado indo para terminal 'c'
+        # e nao terminal proximo estado
         for estado in self.transicoes:
             for c in self.transicoes[estado]:
                 gramatica.addProducao(str(estado), c + str(list(self.transicoes[estado][c])[0]))
@@ -146,10 +147,15 @@ class AFD():
 
 # ======= Minimizar =========
 
+    def minimizar(self):
+        self.eliminarInalcancaveis()
+        self.eliminarMortos()
+        self.reduzirParaEquivalencia()
+
     def eliminarMortos(self):
-
         produtivos = self.estadosFinais
-
+        # para cada estado vemos se ele alcanca algum estado produtivo
+        # estados produtivos sao aqueles q alcancam os estados finais ou outros produtivos
         while True:
             q = set()
             for e in self.transicoes:
@@ -161,29 +167,27 @@ class AFD():
             if len(q) == 0:
                 break
 
-        self.estados = self.estados.intersection(produtivos)
-        self.estadosFinais = self.estadosFinais.intersection(produtivos)
-
+        # atualizamos os estados para somente os produtivos 
+        self.estados = produtivos
+        # atualizamos as transicoes para so as que alcancam estados produtivos
         transicoes = self.transicoes
         self.transicoes =  {}
-
         for estado in transicoes:
-            for c in transicoes[estado]:
-                for s in transicoes[estado][c]:
-                    if estado in produtivos and s in produtivos:
-                        self.addTransicao(estado, c, s)
-
-
+            if estado in produtivos:
+                for c in transicoes[estado]:
+                    for s in transicoes[estado][c]:
+                        if s in produtivos:
+                            self.addTransicao(estado, c, s)
 
 
     def eliminarInalcancaveis(self):
         visited = set()
         visited.add(self.estadoInicial)
         current = [self.estadoInicial]
-
+        # para cada transicao partindo do estado inicial vemos os estados alcancados
+        # para cada estado alcancado vemos as transicoes que partem dele
         while len(current) > 0:
             next = []
-
             for estado in current:
                 if estado in self.transicoes:
                     for c in self.transicoes[estado]:
@@ -191,20 +195,19 @@ class AFD():
                             if s not in visited:
                                 next.append(s)
                                 visited.add(s)
-
             current = next
-
-        self.estados = self.estados.intersection(visited)
+        # atualizamos os estados para somente os alcancados
+        self.estados = visited
         self.estadosFinais = self.estadosFinais.intersection(visited)
-
         # atualizar transicoes
         transicoes = self.transicoes
         self.transicoes = {}
         for estado in transicoes:
-            for c in transicoes[estado]:
-                for s in transicoes[estado][c]:
-                    if estado in visited and s in visited:
-                        self.addTransicao(estado, c, s)
+            if estado in visited:
+                for c in transicoes[estado]:
+                    for s in transicoes[estado][c]:
+                        if s in visited:
+                            self.addTransicao(estado, c, s)
 
 
     def reduzirParaEquivalencia(self):
@@ -218,6 +221,7 @@ class AFD():
             def addTransicao(self, c, classe):
                 self.transicoes[c] = classe
 
+        # referencia do valor de equivalencia para cada estado
         refs = {}
         for e in self.estados:
             refs[e] = Equivalencia(e)
@@ -226,30 +230,37 @@ class AFD():
             else:
                 refs[e].classe_index = 0
 
+        # classes de equivalencia
         classesEquiv = [self.estados.difference(self.estadosFinais), self.estadosFinais]
 
+        # enquanto eu criar mais classes de equivalencias, temos q iterar novamente
         done = False
         while not done:
             done = True
+            # para cada caracter do alfabeto passo por todas as classes de equiv. 
+            # com mais de um elemento, vendo se partindo do segundo elemento
+            # ha algum elemento que aponta (possui uma transicao por 'c')
+            # para outra classe de equivalencia. 
             for c in self.alfabeto:
-                for classe in classesEquiv.copy():
+                for classe in [c for c in classesEquiv if len(c) > 1]:
                     primeiro = True
                     classe_apontada = None
                     nova_classe = set()
                     for elem in classe:
-                        primeiro = True
-                        classe_apontada_primeiro = None
-                        nova_classe = set()
-                        for elem in classe:
-                            classe_apontada = None
-                            if elem in self.transicoes and c in self.transicoes[elem]:
-                                classe_apontada = refs[list(self.transicoes[elem][c])[0]].classe_index
-                            if primeiro:
-                                primeiro = False
-                                classe_apontada_primeiro = classe_apontada
-                            elif classe_apontada != classe_apontada_primeiro:
-                                nova_classe.add(elem)
-                                done = False
+                        # classe apontada
+                        classe_apontada = None
+                        if elem in self.transicoes and c in self.transicoes[elem]:
+                            classe_apontada = refs[list(self.transicoes[elem][c])[0]].classe_index
+                        # se for o primeiro elemento da classe de equiv.
+                        if primeiro:
+                            primeiro = False
+                            classe_apontada_primeiro = classe_apontada
+                        # quais outros elem. da classe apontam para diferentes classes de equiv.
+                        elif classe_apontada != classe_apontada_primeiro:
+                            nova_classe.add(elem)
+                            done = False
+                    # se criamos uma nova classe, removemos as classes da antiga classe de equiv.
+                    # calculamos o index da sua nova classe de equiv.
                     if len(nova_classe) > 0:
                         classesEquiv.append(nova_classe)
                         index = -1
@@ -259,7 +270,6 @@ class AFD():
                         classesEquiv[index] = classesEquiv[index].difference(nova_classe)
                         for e in nova_classe:
                             refs[e].classe_index = len(classesEquiv) - 1
-
         # ajustar estados
         estados = []
         estadosFinais = []
@@ -269,7 +279,7 @@ class AFD():
                     estadosFinais.append(e)
                 estados.append(e)
                 break
-            
+        
         estadoInicial = [e for e in classesEquiv[refs[self.estadoInicial].classe_index]][0]
         # atualizar estados
         self.estados = set(estados)
@@ -283,26 +293,20 @@ class AFD():
                 for t in transicoes[e][c]:
                     self.addTransicao(e, c, estados[refs[t].classe_index])
 
-
-    def minimizar(self):
-        self.eliminarInalcancaveis()
-        self.eliminarMortos()
-        self.reduzirParaEquivalencia()
-
 # ======= Ajustar estados e transicoes para numeros de [0..nEstados] =======
 
     def ajustarNomeEstados(self):
         # salvar antigos e zerar atributos
-        estados = self.estados
-        estadosFinais = self.estadosFinais
-        estadoInicial = self.estadoInicial
-        transicoes = self.transicoes
-        self.estados = set()
-        self.estadosFinais = set()
-        self.estadoInicial = '0'
-        self.transicoes = {}
+        estadoInicial       = self.estadoInicial
+        estados             = self.estados
+        estadosFinais       = self.estadosFinais
+        transicoes          = self.transicoes
+        self.estadoInicial  = '0'
+        self.estados        = set()
+        self.estadosFinais  = set()
+        self.transicoes     = {}
         # linkar novo nome com estado
-        nomeEstados = {estadoInicial: self.estadoInicial}
+        nomeEstados = {estadoInicial: '0'}
         for e in [e for e in estados if e != estadoInicial]:
             nomeEstados[e] = str(len(nomeEstados))
         # atualizar nome dos estados

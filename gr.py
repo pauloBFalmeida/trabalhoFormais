@@ -1,6 +1,4 @@
 from erros import *
-# from afd import *
-# from afnd import *
 
 class GR():
 
@@ -34,15 +32,18 @@ class GR():
         self.passoDerivacao([self.simboloInicial], profundidadeMax)
 
     def passoDerivacao(self, cadeia, nivel):
+        # fim da recursao
         if nivel == 0:
             for c in cadeia:
                 if c not in self.terminais:
                     return
+            # print da cadeia toda 
             print(''.join(cadeia))
             return
-
+        # para cada elemento da cadeia
         for i in range(len(cadeia)):
             s = cadeia[i]
+            # se for uma producao troco por suas producoes
             if s in self.naoTerminais and s in self.producoes:
                 prods = self.producoes[s]
                 for prod in prods:
@@ -54,7 +55,7 @@ class GR():
 # ======= Conversao para AFND =========
 
     def converterParaAFND(self):
-        from afnd import AFND
+        from afnd import AFND   # circular import se estiver fora do metodo
         # simbolo '#' representa o estado final
         automato = AFND(self.naoTerminais.union(set('#')),
                         self.terminais,
@@ -69,11 +70,39 @@ class GR():
                     automato.addTransicao(simbolo, prod[0], prod[1])
         # ajusto os nomes e retorno o automato
         return automato
-    
+
+# ======= Ajustar nomes das Producoes =========
+
+    def ajustarNomeProducoes(self):
+        if len(self.naoTerminais) < 26:
+            nomesNT = {self.simboloInicial: 'S'}
+            letraAtual = 'A'
+            naoTerminais = set('S')
+            for nt in self.naoTerminais.difference(self.simboloInicial):
+                nomesNT[nt] = letraAtual
+                naoTerminais.add(letraAtual)
+                letraAtual = chr(ord(letraAtual)+1)
+            # atualizo os atributos
+            self.naoTerminais = naoTerminais
+            self.simboloInicial = 'S'
+            # atualizo as producoes
+            producoes = self.producoes
+            self.producoes = {}
+            for simbolo in producoes:
+                for derivacao in producoes[simbolo]:
+                    novoD = ""
+                    for c in derivacao:
+                        if c in self.terminais:
+                            novoD += c
+                        else:
+                            novoD += nomesNT[c]
+                    self.addProducao(nomesNT[simbolo], novoD)
+
 # ======= Print no terminal =========
 
     def printar(self):
         simbolosNaoIniciais = [p for p in self.producoes if p != self.simboloInicial]
+        simbolosNaoIniciais.sort()
         for simbolo in [self.simboloInicial] + simbolosNaoIniciais:
             l = simbolo + " -> "
             for prod in self.producoes[simbolo]:

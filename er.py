@@ -7,16 +7,13 @@ class ER():
 
     def __init__(self, definicoes):
         self.instancias = {}
-        # self.defs = []
 
-        print("def")
         for d in definicoes:
             if len(d) > 0:
                 print(d)
                 l = d.split(":")
                 newDef = DefReg(l[0], l[1][1:])
                 self.instancias[l[0]] = newDef
-        print("donedefs")
 
         itlist = [id for id in self.instancias]
 
@@ -24,11 +21,11 @@ class ER():
             self.instancias[str(i)] = DefReg(str(i), str(i), unicoCaractere=True)
             self.instancias[str(i)].forcarExpressoes()
 
-        for i in 'abcdefghijklmnopqrstuvwxyz':
+        for i in [chr(i) for i in range(ord('a'), ord('z')+1)]:
             self.instancias[i] = DefReg(i, i, unicoCaractere=True)
             self.instancias[i].forcarExpressoes()
-
-        for i in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+            
+        for i in [chr(i) for i in range(ord('A'), ord('Z')+1)]:
             self.instancias[i] = DefReg(i, i, unicoCaractere=True)
             self.instancias[i].forcarExpressoes()
 
