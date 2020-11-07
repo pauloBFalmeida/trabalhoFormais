@@ -11,11 +11,11 @@ class AFND(AFD):
 
 # ======= Epsilon Fecho =========
 
-    def gerarEpsilonFecho(self):
+    def gerarEpsilonFechos(self):
         for e in self.estados:
-            self.epsilonFechos[e] = self.epsilonFecho(e)
+            self.epsilonFechos[e] = self.calcularEpsilonFechos(e)
 
-    def epsilonFecho(self, estado):
+    def calcularEpsilonFechos(self, estado):
         alcancaveis = set([estado])
         current = set([estado])
         visited = set([estado])
@@ -36,8 +36,8 @@ class AFND(AFD):
 # ======= Computar entrada =========
 
     def computar(self, entrada):
-        self.gerarEpsilonFecho()
-        estadoAtual = self.epsilonFecho[self.estadoInicial]
+        self.gerarEpsilonFechos()
+        estadoAtual = self.epsilonFechos[self.estadoInicial]
         # para cada caracter na entrada
         for c in entrada:
             if c not in self.alfabeto:
@@ -82,7 +82,7 @@ class AFND(AFD):
 
     def determinizar(self):
         # gerar epsilon fecho e remover epsilon do alfabeto
-        self.gerarEpsilonFecho()
+        self.gerarEpsilonFechos()
         if '&' in self.alfabeto:
             self.alfabeto.remove('&')
 

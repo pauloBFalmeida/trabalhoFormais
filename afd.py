@@ -13,6 +13,8 @@ class AFD():
         self.estadosFinais = set(estadosFinais)
         self.transicoes = {}
 
+    # ======= adicionar ===========
+
     def addEstado(self, estado):
         self.estados.add(estado)
 
@@ -32,6 +34,38 @@ class AFD():
         if not simbolo in self.transicoes[estadoInicial]:
             self.transicoes[estadoInicial][simbolo] = set()
         self.transicoes[estadoInicial][simbolo].add(estadoProximo)
+
+    # ======= remove ===========
+
+    def remEstado(self, estado):
+        if estado in self.estados:
+            self.estados.discard(estado)
+            # remover das transicoes
+            for simbolo in self.alfabeto:
+                self.remTransicao(estado, simbolo, estado)
+                # removo as transicoes partindo do estado para outros
+                # removo as transicoes dos outros estados chegando no estado
+                for e in [e for e in self.estados if e != estado]:
+                    self.remTransicao(estado, simbolo, e)
+                    self.remTransicao(e, simbolo, estado)
+
+    def remAlfabeto(self, simbolo):
+        if simbolo in self.alfabeto:
+            self.alfabeto.discard(simbolo)
+            # para cada estado removo as transicoes por aquele simbolo
+            for e1 in self.estados:
+                for e2 in self.estados:
+                    self.remTransicao(e1, simbolo, e2)
+
+    def remTransicao(self, estadoInicial, simbolo, estadoProximo):
+        if estadoInicial in self.transicoes:
+            if simbolo in self.transicoes[estadoInicial]:
+                if estadoProximo in self.transicoes[estadoInicial][simbolo]:
+                    self.transicoes[estadoInicial][simbolo].discard(estadoProximo)
+                    if len(self.transicoes[estadoInicial][simbolo]) == 0:
+                        self.transicoes[estadoInicial].discard(simbolo)
+                    if len(self.transicoes[estadoInicial]) == 0:
+                        self.transicoes.discard(estadoInicial)
 
 # ======= Uniao =========
 
