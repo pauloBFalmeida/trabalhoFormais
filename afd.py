@@ -201,7 +201,7 @@ class AFD():
             if len(q) == 0:
                 break
 
-        # atualizamos os estados para somente os produtivos 
+        # atualizamos os estados para somente os produtivos
         self.estados = produtivos
         # atualizamos as transicoes para so as que alcancam estados produtivos
         transicoes = self.transicoes
@@ -271,10 +271,10 @@ class AFD():
         done = False
         while not done:
             done = True
-            # para cada caracter do alfabeto passo por todas as classes de equiv. 
+            # para cada caracter do alfabeto passo por todas as classes de equiv.
             # com mais de um elemento, vendo se partindo do segundo elemento
             # ha algum elemento que aponta (possui uma transicao por 'c')
-            # para outra classe de equivalencia. 
+            # para outra classe de equivalencia.
             for c in self.alfabeto:
                 for classe in [c for c in classesEquiv if len(c) > 1]:
                     primeiro = True
@@ -313,7 +313,7 @@ class AFD():
                     estadosFinais.append(e)
                 estados.append(e)
                 break
-        
+
         estadoInicial = [e for e in classesEquiv[refs[self.estadoInicial].classe_index]][0]
         # atualizar estados
         self.estados = set(estados)
@@ -414,7 +414,7 @@ class AFD():
             print(linha_out)
 
 # ======= Exportar para Arquivo =========
-        
+
     def exportarParaArquivo(self, nomeArquivo):
         texto = ""
         # ajustar os estados para ficarem bonitinhos
@@ -428,7 +428,7 @@ class AFD():
             texto += e + ','
         texto = texto[:-1] + '\n'
         # alfabeto
-        for c in self.alfabeto: 
+        for c in self.alfabeto:
             texto += str(c) + ','
         texto = texto[:-1] + '\n'
         # transições (uma por linha)

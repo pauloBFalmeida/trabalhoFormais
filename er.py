@@ -7,15 +7,7 @@ class ER():
 
     def __init__(self, definicoes):
         self.instancias = {}
-
-        for d in definicoes:
-            if len(d) > 0:
-                print(d)
-                l = d.split(":")
-                newDef = DefReg(l[0], l[1][1:])
-                self.instancias[l[0]] = newDef
-
-        itlist = [id for id in self.instancias]
+        self.definicoes = {}
 
         for i in range(0,10):
             self.instancias[str(i)] = DefReg(str(i), str(i), unicoCaractere=True)
@@ -24,10 +16,20 @@ class ER():
         for i in [chr(i) for i in range(ord('a'), ord('z')+1)]:
             self.instancias[i] = DefReg(i, i, unicoCaractere=True)
             self.instancias[i].forcarExpressoes()
-            
+
         for i in [chr(i) for i in range(ord('A'), ord('Z')+1)]:
             self.instancias[i] = DefReg(i, i, unicoCaractere=True)
             self.instancias[i].forcarExpressoes()
+
+        itlist = []
+        for d in definicoes:
+            if len(d) > 0:
+                print(d)
+                l = d.split(":")
+                newDef = DefReg(l[0], l[1][1:])
+                self.instancias[l[0]] = newDef
+                self.definicoes[l[0]] = l[1][1:]
+                itlist.append(l[0])
 
         for id in itlist:
             refs = self.instancias[id].pedirRefs()
@@ -91,3 +93,22 @@ class ER():
 
 
     def converterParaAFD(self): pass
+
+    def addDefinicao(self, id, er):
+        self.definicoes[id] = er
+
+    def remDefinicao(self, id):
+        if id in self.definicoes:
+            del self.definicoes[id]
+
+    def getDefinicoes(self):
+        r = []
+        for id in self.definicoes:
+            r.append(f'{id}: {self.definicoes[id]}')
+        return r
+
+
+
+    def printar(self):
+        for id in self.definicoes:
+            print(f'{id}: {self.definicoes[id]}')

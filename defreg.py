@@ -150,10 +150,6 @@ class DefReg:
         else:
             fd = nodo.filhoDir.item
 
-        #print(f'{nodo.item} -> {fe}, -> {fd}')
-        #print(f'{nodo.item} fp:{nodo.firstPos} ls:{nodo.lastPos}')
-
-
         if nodo.filhoEsq is not None:
             self.printarNodo(nodo.filhoEsq)
 
@@ -184,7 +180,6 @@ class DefReg:
         else:
             nodoEsq.filhoEsq = filhoEsq
             nodoEsq.filhoDir = filhoDir
-
 
         if noperandos == 1:
             return nodoEsq

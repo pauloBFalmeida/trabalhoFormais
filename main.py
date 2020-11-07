@@ -66,15 +66,16 @@ def lerArquivoER(arquivo):
     with open(arquivo, "r") as file:
         linhas = file.read().split('\n')
 
-    julia = ER(linhas)
-    for e in julia.instancias:
-        # print(f"e = {e}" )
-        # print(julia.instancias[e].expressoes)
-        # julia.instancias[e].prepararExpressao()
-        #julia.instancias[e].criarArvore()
-        #julia.instancias[e].printarArvore()
-        julia.instancias[e].converterParaAFD()
-        julia.instancias[e].printarArvore()
+    er = ER(linhas)
+    # for e in julia.instancias:
+    #     # print(f"e = {e}" )
+    #     # print(julia.instancias[e].expressoes)
+    #     # julia.instancias[e].prepararExpressao()
+    #     #julia.instancias[e].criarArvore()
+    #     #julia.instancias[e].printarArvore()
+    #     julia.instancias[e].converterParaAFD()
+    #     julia.instancias[e].printarArvore()
+    return er
 
 # ========= Main ===========
 objetos = {}
@@ -191,14 +192,184 @@ def menuExportar(*args):
     objetos[nome].exportarParaArquivo(arquivo)
     print("objeto "+nome+" foi exportado com o nome: "+arquivo)
 
-def menuEditar():
-    #addEstado
-    #addAlfabeto
-    #addTransicao
-    #remEstado
-    #remAlfabeto
-    #remTransicao
-    pass
+def menuEditar(*args):
+    if args:
+        entrada = args[0]
+        args = []
+    else:
+        print("<nome objeto>")
+        print("nome objeto: nome do objeto")
+        entrada = input().split(' ')
+
+    nome = entrada[0]
+    if nome not in objetos:
+        print("nao existe um objeto com esse nome")
+        return
+
+    obj = objetos[nome]
+
+    if isinstance(obj, AFD) or isinstance(obj, AFND):
+        print("editando " + nome + "...")
+        modoEdicaoAF(obj)
+    elif isinstance(obj, GR):
+        print("editando " + nome + "...")
+        modoEdicaoGR(obj)
+    elif isinstance(obj, ER):
+        print("editando " + nome + "...")
+        modoEdicaoER(obj)
+
+def modoEdicaoAF(obj):
+
+    def helpEdicao():
+        print("\ncomandos possíveis")
+        print("    #/add estados <estado>")
+        print("    #/add alfabeto <simbolo>")
+        print("    #/add transicao <estado antes> <simbolo> <estado depois>")
+        print("    #/remove estados <estado>")
+        print("    #/remove alfabeto <simbolo>")
+        print("    #/remove transicao <estado antes> <simbolo> <estado depois>")
+        print("    #/sair")
+        print("    #/printar")
+
+    helpEdicao()
+    while True:
+        entrada = input('#/').split(' ')
+        if len(entrada) == 0:
+            continue
+        if entrada[0] == "sair":
+            break
+        if entrada[0] == "printar":
+            obj.printar()
+            continue
+        if len(entrada) < 3:
+            print("comando nao reconhecido")
+            helpEdicao()
+        else:
+            op, edit, args = entrada[0], entrada[1], entrada[2:]
+
+            if op == "add" and edit == "estados":
+                estado = args[0]
+                obj.addEstado(estado)
+            elif op == "add" and edit == "alfabeto":
+                simbolo = args[0]
+                obj.addAlfabeto(simbolo)
+            elif op == "add" and edit == "transicao":
+                if len(args) == 3:
+                    obj.addTransicao(args[0], args[1], args[2])
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
+            elif op == "remove" and edit == "estados":
+                estado = args[0]
+                obj.remEstado(estado)
+            elif op == "remove" and edit == "alfabeto":
+                simbolo = args[0]
+                obj.remAlfabeto(simbolo)
+            elif op == "remove" and edit == "transicao":
+                if len(args) == 3:
+                    obj.remTransicao(args[0], args[1], args[2])
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
+            else:
+                print("comando nao reconhecido")
+                helpEdicao()
+
+def modoEdicaoGR(obj):
+    def helpEdicao():
+        print("\ncomandos possíveis")
+        print("    #/add naoterminal  <nao terminal>")
+        print("    #/add terminal <terminal>")
+        print("    #/add producao <lado esquerdo> <lado direito>")
+        print("    #/remove naoterminal <nao terminal>")
+        print("    #/remove terminal <terminal>")
+        print("    #/remove producao <lado esquerdo> <lado direito>")
+        print("    #/sair")
+        print("    #/printar")
+
+    helpEdicao()
+    while True:
+        entrada = input('#/').split(' ')
+        if len(entrada) == 0:
+            continue
+        if entrada[0] == "sair":
+            break
+        if entrada[0] == "printar":
+            obj.printar()
+            continue
+        if len(entrada) < 3:
+            print("comando nao reconhecido")
+            helpEdicao()
+        else:
+            op, edit, args = entrada[0], entrada[1], entrada[2:]
+
+            if op == "add" and edit == "naoterminal":
+                naoterminal = args[0]
+                obj.addNaoTerminal(naoterminal)
+            elif op == "add" and edit == "terminal":
+                terminal = args[0]
+                obj.addTerminal(terminal)
+            elif op == "add" and edit == "producao":
+                if len(args) == 2:
+                    obj.addProducao(args[0], args[1])
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
+            elif op == "remove" and edit == "naoterminal":
+                naoterminal = args[0]
+                obj.remNaoTerminal(naoterminal)
+            elif op == "remove" and edit == "terminal":
+                terminal = args[0]
+                obj.remTerminal(terminal)
+            elif op == "remove" and edit == "producao":
+                if len(args) == 2:
+                    obj.remProducao(args[0], args[1])
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
+            else:
+                print("comando nao reconhecido")
+                helpEdicao()
+
+def modoEdicaoER(obj):
+    def helpEdicao():
+        print("\ncomandos possíveis")
+        print("    #/add <nome da definicao> <expressao>")
+        print("    #/remove <nome da definicao>")
+        print("    #/sair")
+        print("    #/printar")
+
+    helpEdicao()
+    while True:
+        entrada = input('#/').split(' ')
+        if len(entrada) == 0:
+            continue
+        if entrada[0] == "sair":
+            novas_definicoes = obj.getDefinicoes()
+            obj = ER(novas_definicoes)
+            break
+        if entrada[0] == "printar":
+            obj.printar()
+            continue
+        if len(entrada) < 2:
+            print("comando nao reconhecido")
+            helpEdicao()
+        else:
+            op, args = entrada[0], entrada[1:]
+
+            if op == "add":
+                if len(entrada) == 3:
+                    definicao, expressao = args[0], args[1]
+                    obj.addDefinicao(definicao, expressao)
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
+            elif op == "remove":
+                definicao = args[0]
+                obj.remDefinicao(definicao)
+            else:
+                print("comando nao reconhecido")
+                helpEdicao()
 
 def menuMetodos(*args):
     # input nome

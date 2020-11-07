@@ -26,6 +26,32 @@ class GR():
             self.producoes[simbolo] = set()
         self.producoes[simbolo].add(derivacao)
 
+    def remTerminal(self, a):
+        if a in self.terminais:
+            self.terminais.discard(a)
+            for e in self.producoes:
+                aRemover = set()
+                for d in self.producoes[e]:
+                    if a in d:
+                        aRemover.add(d)
+                self.producoes[e] = self.producoes[e].difference(aRemover)
+
+    def remNaoTerminal(self, s):
+        if s in self.naoTerminais:
+            self.naoTerminais.discard(s)
+            del self.producoes[s]
+            for e in self.producoes:
+                aRemover = set()
+                for d in self.producoes[e]:
+                    if s in d:
+                        aRemover.add(d)
+                self.producoes[e] = self.producoes[e].difference(aRemover)
+
+    def remProducao(self, esquerdo, direito):
+        if esquerdo in self.producoes:
+            if direito in self.producoes[esquerdo]:
+                self.producoes[esquerdo].discard(direito)
+
 # ======= Derivacao =========
 
     def derivar(self, profundidadeMax):
@@ -37,7 +63,7 @@ class GR():
             for c in cadeia:
                 if c not in self.terminais:
                     return
-            # print da cadeia toda 
+            # print da cadeia toda
             print(''.join(cadeia))
             return
         # para cada elemento da cadeia
@@ -122,5 +148,3 @@ class GR():
         # escrever no arquivo
         with open(nomeArquivo, 'w') as arquivo:
             arquivo.write(texto)
-
-
