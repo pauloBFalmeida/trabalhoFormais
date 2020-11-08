@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+# Universidade Federal de Santa Catarina
+# Departamento de Informática e Estatística
+# Alunos: Paulo Barbato Fogaça de Almeida, Wesly Carmesini Ataide
+# Data: 07/11/2020
+
 from defreg import *
 from nodo import Nodo
 

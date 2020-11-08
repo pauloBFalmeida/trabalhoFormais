@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+# Universidade Federal de Santa Catarina
+# Departamento de Informática e Estatística
+# Alunos: Paulo Barbato Fogaça de Almeida, Wesly Carmesini Ataide
+# Data: 07/11/2020
+
 from afd import *
 from afnd import *
 from gr import *
@@ -544,5 +550,6 @@ def menuMetodos(*args):
                 obj.printar()
 
 # ========= Execucao ===========
+
 if __name__ == "__main__":
     main()
