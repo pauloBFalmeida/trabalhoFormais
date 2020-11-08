@@ -65,16 +65,7 @@ def lerArquivoGR(arquivo):
 def lerArquivoER(arquivo):
     with open(arquivo, "r") as file:
         linhas = file.read().split('\n')
-
     er = ER(linhas)
-    # for e in julia.instancias:
-    #     # print(f"e = {e}" )
-    #     # print(julia.instancias[e].expressoes)
-    #     # julia.instancias[e].prepararExpressao()
-    #     #julia.instancias[e].criarArvore()
-    #     #julia.instancias[e].printarArvore()
-    #     julia.instancias[e].converterParaAFD()
-    #     julia.instancias[e].printarArvore()
     return er
 
 # ========= Main ===========
@@ -90,13 +81,13 @@ def main():
         args = entrada[1:]
         if "help" in comando:
             menuHelp()
-        elif "nomesObjetos" in comando:
+        elif "nomes" in comando:
             nomesObjetos()
-        elif "printar" in comando:
+        elif "print" in comando:
             menuPrintar(args)
-        elif "importar" in comando:
+        elif "import" in comando:
             menuImportar(args)
-        elif "exportar" in comando:
+        elif "export" in comando:
             menuExportar(args)
         elif "editar" in comando:
             menuEditar(args)
@@ -104,16 +95,20 @@ def main():
             menuMetodos(args)
         elif "sair" in comando:
             rodando = False
+            
+# ========== Menu Help =========
 
 def menuHelp():
     print("/help         - para exibir novamente os comandos")
-    print("/nomesObjetos - para exibir os nomes dos objetos criados")
-    print("/printar      - para exibir o objeto no terminal")
-    print("/importar     - para exibir o menu de importacao de arquivos")
-    print("/exportar     - para exibir o menu de exportacao de arquivos")
+    print("/nomes        - para exibir os nomes dos objetos criados")
+    print("/print        - para exibir o objeto no terminal")
+    print("/import       - para exibir o menu de importacao de arquivos")
+    print("/export       - para exibir o menu de exportacao de arquivos")
     print("/editar       - para exibir o menu de edicao de objetos")
     print("/metodos      - para exibir o menu de metodos de objetos")
     print("/sair         - para terminar o programa (objetos nao exportados serao perdidos)")
+    
+# ========== Nome dos Objetos =========
 
 def nomesObjetos():
     if len(objetos) < 1:
@@ -123,11 +118,14 @@ def nomesObjetos():
     for nome in objetos:
         tipo = str(objetos[nome].__class__.__name__)
         print("- "+nome + " <"+ tipo +">")
+        
+# ========== Menu Printrar =========
 
 def menuPrintar(*args):
     # input nome
+    args = args[0]
     if args:
-        nome = args[0][0]
+        nome = args[0]
         args = []
     else:
         print("<nome do objeto>")
@@ -137,11 +135,14 @@ def menuPrintar(*args):
         return
     # printar
     objetos[nome].printar()
+    
+# ========== Menu Importar =========
 
 def menuImportar(*args):
     # input
+    args = args[0]
     if args:
-        entrada = args[0]
+        entrada = args
         args = []
     else:
         print("<nome desejado> <tipo> <nome do arquivo>")
@@ -171,10 +172,13 @@ def menuImportar(*args):
         return
     print(tipo+" foi criado com o nome: "+nome)
 
+# ========== Menu Exportar =========
+
 def menuExportar(*args):
     # input
+    args = args[0]
     if args:
-        entrada = args[0]
+        entrada = args
         args = []
     else:
         print("<nome objeto> <nome do arquivo>")
@@ -191,10 +195,13 @@ def menuExportar(*args):
     # exportar
     objetos[nome].exportarParaArquivo(arquivo)
     print("objeto "+nome+" foi exportado com o nome: "+arquivo)
+    
+# ========== Menu Editar =========
 
 def menuEditar(*args):
+    args = args[0]
     if args:
-        entrada = args[0]
+        entrada = args
         args = []
     else:
         print("<nome objeto>")
@@ -229,7 +236,8 @@ def modoEdicaoAF(obj):
         print("    #/remove alfabeto <simbolo>")
         print("    #/remove transicao <estado antes> <simbolo> <estado depois>")
         print("    #/sair")
-        print("    #/printar")
+        print("    #/computar <entrada>")
+        print("    #/print")
 
     helpEdicao()
     while True:
@@ -238,7 +246,11 @@ def modoEdicaoAF(obj):
             continue
         if entrada[0] == "sair":
             break
-        if entrada[0] == "printar":
+        if entrada[0] == "computar":
+            ret = obj.computar(entrada[1])
+            print(entrada[1]+(" nao" if not ret else "")+" pertence a linguagem")
+            continue
+        if entrada[0] == "print":
             obj.printar()
             continue
         if len(entrada) < 3:
@@ -246,7 +258,6 @@ def modoEdicaoAF(obj):
             helpEdicao()
         else:
             op, edit, args = entrada[0], entrada[1], entrada[2:]
-
             if op == "add" and edit == "estados":
                 estado = args[0]
                 obj.addEstado(estado)
@@ -285,7 +296,8 @@ def modoEdicaoGR(obj):
         print("    #/remove terminal <terminal>")
         print("    #/remove producao <lado esquerdo> <lado direito>")
         print("    #/sair")
-        print("    #/printar")
+        print("    #/derivar <profundidade>")
+        print("    #/print")
 
     helpEdicao()
     while True:
@@ -294,7 +306,10 @@ def modoEdicaoGR(obj):
             continue
         if entrada[0] == "sair":
             break
-        if entrada[0] == "printar":
+        if entrada[0] == "derivar":
+            obj.derivar(int(entrada[1]))
+            continue
+        if entrada[0] == "print":
             obj.printar()
             continue
         if len(entrada) < 3:
@@ -330,14 +345,14 @@ def modoEdicaoGR(obj):
             else:
                 print("comando nao reconhecido")
                 helpEdicao()
-
+                
 def modoEdicaoER(obj):
     def helpEdicao():
         print("\ncomandos possíveis")
         print("    #/add <nome da definicao> <expressao>")
         print("    #/remove <nome da definicao>")
         print("    #/sair")
-        print("    #/printar")
+        print("    #/print")
 
     helpEdicao()
     while True:
@@ -348,7 +363,7 @@ def modoEdicaoER(obj):
             novas_definicoes = obj.getDefinicoes()
             obj = ER(novas_definicoes)
             break
-        if entrada[0] == "printar":
+        if entrada[0] == "print":
             obj.printar()
             continue
         if len(entrada) < 2:
@@ -371,10 +386,13 @@ def modoEdicaoER(obj):
                 print("comando nao reconhecido")
                 helpEdicao()
 
+# ========== Menu Metodos =========
+
 def menuMetodos(*args):
+    args = args[0]
     # input nome
     if args:
-        nome = args[0][0]
+        nome = args[0]
         args = []
     else:
         print("<nome do objeto>")
@@ -383,87 +401,147 @@ def menuMetodos(*args):
         print("nao existe um objeto com esse nome")
         return
     obj = objetos[nome]
-    # AFND
+    # ======== AFND ==========
     if isinstance(obj, AFND):
         print("metodos para AFND")
-        print("computar determinizar")
-        comando = input()
-        if "computar" in comando:
-            print("entrada a ser computada:")
-            entrada = input()
-            ret = obj.computar(entrada)
-            print(entrada+" "+("nao " if not ret else "")+"pertence a linguagem")
-        elif "determinizar" in comando:
-            print("nome do novo AFD:")
-            nome2 = input()
-            if nome2 in objetos:
-                print("ja existe um objeto com esse nome")
-                return
-            objetos[nome2] = obj.determinizar()
-            print("novo AFD criado com o nome "+nome2)
-    # AFD
+        print("    #/ajustar(NomeEstados)")
+        print("    #/computar")
+        print("    #/determinizar")
+        print("    #/print")
+        print("    #/sair")
+        while True:
+            print()
+            comando = input("#/")
+            if "sair" in comando:
+                break
+            elif "ajustar" in comando:
+                obj.ajustarNomeEstados()
+                print(nome+" teve ajuste no nome dos estados")
+            elif "computar" in comando:
+                print("entrada a ser computada:")
+                entrada = input()
+                ret = obj.computar(entrada)
+                print(entrada+" "+("nao " if not ret else "")+"pertence a linguagem")
+            elif "determinizar" in comando:
+                print("nome do novo AFD:")
+                nome2 = input()
+                if nome2 in objetos:
+                    print("ja existe um objeto com esse nome")
+                    continue
+                objetos[nome2] = obj.determinizar()
+                print("novo AFD criado com o nome "+nome2)
+            elif "print" in comando:
+                obj.printar()
+    # ======== AFD ==========
     elif isinstance(obj, AFD):
         print("metodos para AFD")
-        print("ajustar(NomeEstados) minimizar converter(ParaGR) computar interseccao uniao")
-        comando = input()
-        if "ajustar" in comando:
-            obj.ajustarNomeEstados()
-            print(nome+" teve ajuste no nome dos estados")
-        elif "minimizar" in comando:
-            obj.minimizar()
-            print(nome+" foi minimizado")
-        elif "converter" in comando:
-            print("nome da nova GR:")
-            nome2 = input()
-            if nome2 in objetos:
-                print("ja existe um objeto com esse nome")
-                return
-            objetos[nome2] = obj.converterParaGR()
-            print("nova gr criada com o nome "+nome2)
-        elif "computar" in comando:
-            print("entrada a ser computada:")
-            entrada = input()
-            ret = obj.computar(entrada)
-            print(entrada+" "+("nao " if not ret else "")+"pertence a linguagem")
-        elif ("interseccao" in comando) or ("uniao" in comando):
-            print("nome do outro AFD para fazer a "+comando+":")
-            nome2 = input()
-            if nome2 not in objetos:
-                print("nao existe um objeto com esse nome")
-                return
-            print("nome para o novo AFD da "+comando+":")
-            nome3 = input()
-            if nome3 in objetos:
-                print("ja existe um objeto com esse nome")
-                return
-            obj2 = objetos[nome2]
-            if ("uniao" in comando):
-                objetos[nome3] = obj.uniao(obj2)
-            else:
-                objetos[nome3] = obj.interseccao(obj2)
-            print(nome3+" contem a "+comando+" entre "+nome+" e "+nome2)
-    # GR
+        print("    #/ajustar(NomeEstados)")
+        print("    #/minimizar")
+        print("    #/converter(ParaGR)")
+        print("    #/computar")
+        print("    #/interseccao")
+        print("    #/uniao")
+        print("    #/print")
+        print("    #/sair")
+        while True:
+            print()
+            comando = input("#/")
+            if "sair" in comando:
+                break
+            elif "ajustar" in comando:
+                obj.ajustarNomeEstados()
+                print(nome+" teve ajuste no nome dos estados")
+            elif "minimizar" in comando:
+                obj.minimizar()
+                print(nome+" foi minimizado")
+            elif "converter" in comando:
+                print("nome da nova GR:")
+                nome2 = input()
+                if nome2 in objetos:
+                    print("ja existe um objeto com esse nome")
+                    continue
+                objetos[nome2] = obj.converterParaGR()
+                print("nova gr criada com o nome "+nome2)
+            elif "computar" in comando:
+                print("entrada a ser computada:")
+                entrada = input()
+                ret = obj.computar(entrada)
+                print(entrada+" "+("nao " if not ret else "")+"pertence a linguagem")
+            elif ("interseccao" in comando) or ("uniao" in comando):
+                print("nome do outro AFD para fazer a "+comando+":")
+                nome2 = input()
+                if nome2 not in objetos:
+                    print("nao existe um objeto com esse nome")
+                    continue
+                print("nome para o novo AFD da "+comando+":")
+                nome3 = input()
+                if nome3 in objetos:
+                    print("ja existe um objeto com esse nome")
+                    continue
+                obj2 = objetos[nome2]
+                if ("uniao" in comando):
+                    objetos[nome3] = obj.uniao(obj2)
+                else:
+                    objetos[nome3] = obj.interseccao(obj2)
+                print(nome3+" contem a "+comando+" entre "+nome+" e "+nome2)
+            elif "print" in comando:
+                obj.printar()
+    # ======== GR ==========
     elif isinstance(obj, GR):
         print("metodos para GR")
-        print("ajustar(NomeProducoes) derivar converter(ParaAFND)")
-        comando = input()
-        if "ajustar" in comando:
-            obj.ajustarNomeProducoes()
-        elif "derivar" in comando:
-            print("profundidade: (tamanho de simbolos da cadeia de saida)")
-            prof = int(input())
-            obj.derivar(prof)
-        elif "converter" in comando:
-            print("nome do novo AFND:")
-            nome2 = input()
-            if nome2 in objetos:
-                print("ja existe um objeto com esse nome")
-                return
-            objetos[nome2] = obj.converterParaAFND()
-            print("novo AFND criado com o nome "+nome2)
+        print("    #/ajustar(NomeProducoes)")
+        print("    #/derivar")
+        print("    #/converter(ParaAFND)")
+        print("    #/print")
+        print("    #/sair")
+        while True:
+            print()
+            comando = input("#/")
+            if "sair" in comando:
+                break
+            elif "ajustar" in comando:
+                obj.ajustarNomeProducoes()
+                print(nome+" teve ajuste no nome das producoes")
+            elif "derivar" in comando:
+                print("profundidade: (tamanho de simbolos da cadeia de saida)")
+                prof = int(input())
+                obj.derivar(prof)
+            elif "converter" in comando:
+                print("nome do novo AFND:")
+                nome2 = input()
+                if nome2 in objetos:
+                    print("ja existe um objeto com esse nome")
+                    continue
+                objetos[nome2] = obj.converterParaAFND()
+                print("novo AFND criado com o nome "+nome2)
+            elif "print" in comando:
+                obj.printar()
+    # ======== ER ==========
     elif isinstance(obj, ER):
         print("metodos para ER")
-
+        print("    #/converter(ParaAFD) <nome da er (opcional)>")
+        print("    #/print")
+        print("    #/sair")
+        while True:
+            print()
+            entrada = input("#/").split(" ")
+            comando = entrada[0]
+            if "sair" in comando:
+                break
+            if "converter" in comando:
+                print("nome do novo AFD:")
+                nome2 = input()
+                if nome2 in objetos:
+                    print("ja existe um objeto com esse nome")
+                    continue
+                if len(entrada) > 1:
+                    afd = obj.converterParaAFD(entrada[1])
+                else:
+                    afd = obj.converterParaAFD(None)
+                objetos[nome2] = afd
+                print("novo AFD criado com o nome "+nome2)
+            elif "print" in comando:
+                obj.printar()
 
 # ========= Execucao ===========
 if __name__ == "__main__":

@@ -63,9 +63,9 @@ class AFD():
                 if estadoProximo in self.transicoes[estadoInicial][simbolo]:
                     self.transicoes[estadoInicial][simbolo].discard(estadoProximo)
                     if len(self.transicoes[estadoInicial][simbolo]) == 0:
-                        self.transicoes[estadoInicial].discard(simbolo)
+                        del self.transicoes[estadoInicial][simbolo]
                     if len(self.transicoes[estadoInicial]) == 0:
-                        self.transicoes.discard(estadoInicial)
+                        del self.transicoes[estadoInicial]
 
 # ======= Uniao =========
 
@@ -155,12 +155,10 @@ class AFD():
         estadoAtual = self.estadoInicial
         # para cada caracter na entrada
         for c in entrada:
-            if c not in self.alfabeto:
-                raise SimboloInexistente(str(c))
-            if c not in self.transicoes[estadoAtual]:
-                raise TransicaoInexistente(str(estadoAtual), c)
-            # avanco para o proximo estado pela transicao
-            estadoAtual = list(self.transicoes[estadoAtual][c])[0]
+            if c in self.alfabeto:
+                if estadoAtual in self.transicoes:
+                    if c in self.transicoes[estadoAtual]:
+                        estadoAtual = list(self.transicoes[estadoAtual][c])[0]
         # se estiver nos estados finais aceito senao rejeito
         if estadoAtual in self.estadosFinais:
             return True

@@ -7,7 +7,6 @@ class DefReg:
         self.id = id
         self.unicoCaractere = unicoCaractere
         self.expressaoPropria = expressaoPropria
-        # self.expressao = s
 
         self.cadeias = []
 
@@ -31,8 +30,8 @@ class DefReg:
         if s[-1] not in ['(', ' ', ')', '*', '?', '+', '|', '[', ']']:
             if s[inicio:i] != '':
                 self.cadeias.append(s[inicio:i])
-
-        # #print(self.cadeias)
+                
+# ======= Referencias ===========
 
     def pedirRefs(self):
         return self.cadeias
@@ -45,11 +44,10 @@ class DefReg:
                 self.expressoes.append(resolucoes[r+k])
             r += nchar[i]
             i += 1
-
+            
+# ======= Expressoes ===========
 
     def forcarExpressoes(self):
-        # #print("para id=" + self.id)
-        # #print("forcando expressao = " + str(self.cadeias))
         self.expressoes = self.cadeias
 
     def prec(self, op):
@@ -103,6 +101,8 @@ class DefReg:
         #print("OUTPUT!")
         #print(output)
         self.operacoes = output
+        
+# ======= Arvore ===========
 
     def criarArvore(self):
         # retorna a raiz
@@ -110,9 +110,6 @@ class DefReg:
             self.raiz = Nodo(self.cadeias[0])
             return self.raiz
 
-        #print('expressoes')
-        #print(self.expressoes)
-        #print()
         self.prepararExpressao()
         operacoes = self.operacoes
         c = operacoes[0]
@@ -220,6 +217,8 @@ class DefReg:
     def calcularFollowPos(self, follow_pos):
         self.raiz.calcularFollowPos(follow_pos)
 
+# ======= Converter AFD ===========
+
     def converterParaAFD(self):
         tag = DefReg('#', '#')
         tag.forcarExpressoes()
@@ -237,10 +236,8 @@ class DefReg:
         for i in dict_posicoes:
             follow_pos[i] = set()
         self.calcularFollowPos(follow_pos)
-        #print('followpos   ')
         for i in follow_pos:
             pass
-            #print(str(i)+" "+str(follow_pos[i]))
 
         self.expressoes = backup
 

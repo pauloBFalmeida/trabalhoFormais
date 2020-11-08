@@ -60,8 +60,8 @@ class AFND(AFD):
     # codificacao 'binario' para um conjunto de estados
     def traduzir(self, conjunto):
         k = 0
-        for i in range(len(self.estados)):
-            if i in conjunto or str(i) in conjunto:
+        for e in self.estados:
+            if e in conjunto or str(e) in conjunto:
                 k = (k << 1) + 1
             else:
                 k = k << 1
@@ -69,11 +69,12 @@ class AFND(AFD):
     
     # conjunto de estados especificados pela codificacao
     def destraduzir(self, k):
+        estados = list(self.estados)
         k = int(k)
         conjunto = set()
         for i in range(len(self.estados)-1, -1,-1):
             if k % 2 == 1:
-                conjunto.add(str(i))
+                conjunto.add(str(estados[i]))
                 k -= 1
             k = k >> 1
         return conjunto
@@ -107,10 +108,12 @@ class AFND(AFD):
                 # e adiciono uma transicao partindo da codigo do conj. atual de estados
                 # por um char 'c' para um codigo do conj. alcancavel de estados
                 if len(estadosTransicao) > 0:
-                    if self.traduzir(estadosAtuais) not in novasTransicoes:
-                        novasTransicoes[self.traduzir(estadosAtuais)] = {}
-                    novasTransicoes[self.traduzir(estadosAtuais)][c] = self.traduzir(estadosTransicao)
-                    if self.traduzir(estadosTransicao) not in visitados:
+                    tradEA = self.traduzir(estadosAtuais)
+                    tradET = self.traduzir(estadosTransicao)
+                    if tradEA not in novasTransicoes:
+                        novasTransicoes[tradEA] = {}
+                    novasTransicoes[tradEA][c] = tradET
+                    if tradET not in visitados:
                         filaEstados.append(estadosTransicao)
 
         # gerar o AFD
