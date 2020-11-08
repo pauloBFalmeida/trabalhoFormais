@@ -130,7 +130,7 @@ def nomesObjetos():
 def menuPrintar(*args):
     # input nome
     args = args[0]
-    if len(args) > 0:
+    if args:
         nome = args[0]
         args = []
     else:
@@ -206,7 +206,7 @@ def menuExportar(*args):
 
 def menuEditar(*args):
     args = args[0]
-    if args:
+    if len(args) > 0:
         entrada = args
         args = []
     else:
@@ -397,7 +397,7 @@ def modoEdicaoER(obj):
 def menuMetodos(*args):
     args = args[0]
     # input nome
-    if args:
+    if len(args) > 0:
         nome = args[0]
         args = []
     else:

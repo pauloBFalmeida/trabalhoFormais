@@ -123,3 +123,14 @@ class ER():
     def printar(self):
         for id in self.definicoes:
             print(f'{id}: {self.definicoes[id]}')
+            
+# ======== Exportar ===========
+
+    def exportarParaArquivo(self, nomeArquivo):
+        texto = ""
+        # definicoes
+        for id in self.definicoes:
+            texto += id +": "+str(self.definicoes[id]) +'\n'
+        # escrever no arquivo
+        with open(nomeArquivo, 'w') as arquivo:
+            arquivo.write(texto)
