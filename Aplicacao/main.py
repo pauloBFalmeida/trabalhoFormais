@@ -556,14 +556,4 @@ def menuMetodos(*args):
 # ========= Execucao ===========
 
 if __name__ == "__main__":
-    
-    #main()
-    afd = lerArquivoAF('afd1.txt', True)
-    afdu = afd.uniao(afd)
-    print(afdu.estados)
-
-    afdu.ajustarNomeEstados()
-    print(afdu.estados)
-
-    afdu.minimizar()
-    print(afdu.estados)
+    main()
