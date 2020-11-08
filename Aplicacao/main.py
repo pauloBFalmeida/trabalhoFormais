@@ -130,7 +130,7 @@ def nomesObjetos():
 def menuPrintar(*args):
     # input nome
     args = args[0]
-    if args:
+    if len(args) > 0:
         nome = args[0]
         args = []
     else:
@@ -147,7 +147,7 @@ def menuPrintar(*args):
 def menuImportar(*args):
     # input
     args = args[0]
-    if args:
+    if len(args) > 0:
         entrada = args
         args = []
     else:
@@ -183,7 +183,7 @@ def menuImportar(*args):
 def menuExportar(*args):
     # input
     args = args[0]
-    if args:
+    if len(args) > 0:
         entrada = args
         args = []
     else:
@@ -407,7 +407,7 @@ def menuMetodos(*args):
         print("nao existe um objeto com esse nome")
         return
     obj = objetos[nome]
-    # ======== AFND ==========
+    # ------- AFND -------
     if isinstance(obj, AFND):
         print("metodos para AFND")
         print("    #/ajustar(NomeEstados)")
@@ -438,7 +438,7 @@ def menuMetodos(*args):
                 print("novo AFD criado com o nome "+nome2)
             elif "print" in comando:
                 obj.printar()
-    # ======== AFD ==========
+    # ------- AFD -------
     elif isinstance(obj, AFD):
         print("metodos para AFD")
         print("    #/ajustar(NomeEstados)")
@@ -492,7 +492,7 @@ def menuMetodos(*args):
                 print(nome3+" contem a "+comando+" entre "+nome+" e "+nome2)
             elif "print" in comando:
                 obj.printar()
-    # ======== GR ==========
+    # ------- GR -------
     elif isinstance(obj, GR):
         print("metodos para GR")
         print("    #/ajustar(NomeProducoes)")
@@ -522,7 +522,7 @@ def menuMetodos(*args):
                 print("novo AFND criado com o nome "+nome2)
             elif "print" in comando:
                 obj.printar()
-    # ======== ER ==========
+    # ------- ER -------
     elif isinstance(obj, ER):
         print("metodos para ER")
         print("    #/converter(ParaAFD) <nome da er (opcional)>")

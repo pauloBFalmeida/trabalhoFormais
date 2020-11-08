@@ -16,6 +16,8 @@ class GR():
         self.naoTerminais = set(naoTerminais)
         self.producoes = {}
 
+    # ------- adicionar -------
+
     def addTerminal(self, a):
         self.terminais.add(a)
 
@@ -31,6 +33,8 @@ class GR():
         if simbolo not in self.producoes:
             self.producoes[simbolo] = set()
         self.producoes[simbolo].add(derivacao)
+        
+    # ------- remover -------
 
     def remTerminal(self, a):
         if a in self.terminais:

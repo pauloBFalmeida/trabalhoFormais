@@ -18,7 +18,7 @@ class AFD():
         self.estadosFinais = set(estadosFinais)
         self.transicoes = {}
 
-    # ======= adicionar ===========
+    # ------- adicionar -------
 
     def addEstado(self, estado):
         self.estados.add(estado)
@@ -38,7 +38,7 @@ class AFD():
             self.transicoes[estadoInicial] = {}
         self.transicoes[estadoInicial][simbolo] = set([estadoProximo])
 
-    # ======= remove ===========
+    # ------- remove -------
 
     def remEstado(self, estado):
         if estado in self.estados:

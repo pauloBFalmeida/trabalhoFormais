@@ -131,7 +131,7 @@ class Nodo():
         if self.filhoDir is not None:
             self.filhoDir.calcularFollowPos(follow_pos)
             
-        # followPos
+        # calcular followPos
         if self.item == ".":
             for i in self.filhoEsq.lastPos:
                 follow_pos[i] = follow_pos[i].union(self.filhoDir.firstPos)

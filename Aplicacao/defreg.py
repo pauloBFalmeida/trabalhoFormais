@@ -121,6 +121,7 @@ class DefReg:
         c = operacoes[0]
         index = [1]
 
+        # crio a raiz
         raiz = Nodo(c)
         filhoEsq, filhoDir = None, None
         if isinstance(c, DefReg):
@@ -137,28 +138,6 @@ class DefReg:
 
         self.raiz = raiz
         return raiz
-
-    def printarArvore(self):
-        self.printarNodo(self.raiz)
-
-    def printarNodo(self, nodo):
-
-        if nodo.filhoEsq is None:
-            fe = "/"
-        else:
-            fe = nodo.filhoEsq.item
-
-        if nodo.filhoDir is None:
-            fd = "/"
-        else:
-            fd = nodo.filhoDir.item
-
-        if nodo.filhoEsq is not None:
-            self.printarNodo(nodo.filhoEsq)
-
-        if nodo.filhoDir is not None:
-            self.printarNodo(nodo.filhoDir)
-
 
     def avaliarNodo(self, noperandos, index):
         # index é uma lista para acessarmos de qualquer nodo da árvore de recursão
@@ -222,6 +201,29 @@ class DefReg:
 
     def calcularFollowPos(self, follow_pos):
         self.raiz.calcularFollowPos(follow_pos)
+
+    # ----- print ----------
+
+    def printarArvore(self):
+        self.printarNodo(self.raiz)
+
+    def printarNodo(self, nodo):
+
+        if nodo.filhoEsq is None:
+            fe = "/"
+        else:
+            fe = nodo.filhoEsq.item
+
+        if nodo.filhoDir is None:
+            fd = "/"
+        else:
+            fd = nodo.filhoDir.item
+
+        if nodo.filhoEsq is not None:
+            self.printarNodo(nodo.filhoEsq)
+
+        if nodo.filhoDir is not None:
+            self.printarNodo(nodo.filhoDir)
 
 # ======= Converter AFD ===========
 

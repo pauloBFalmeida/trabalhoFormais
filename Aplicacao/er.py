@@ -119,6 +119,7 @@ class ER():
         return afd
 
 # ======== Print ===========
+
     def printar(self):
         for id in self.definicoes:
             print(f'{id}: {self.definicoes[id]}')

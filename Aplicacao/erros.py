@@ -4,6 +4,9 @@
 # Alunos: Paulo Barbato Fogaça de Almeida, Wesly Carmesini Ataide
 # Data: 07/11/2020
 
+
+# ======= AF ===========
+
 class ErroNoAutomato(Exception):
     pass
 
@@ -21,6 +24,8 @@ class TransicaoInexistente(ErroNoAutomato):
     def __init__(self, estadoInicial, simbolo):
         self.message = f"A transição delta({estadoInicial},{simbolo}) é vazia."
         super().__init__(self.message)
+
+# ======= GR ===========
 
 class ErroNaGramatica(Exception):
     def __init__(self, estado):
