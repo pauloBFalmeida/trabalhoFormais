@@ -8,6 +8,20 @@ class AFND(AFD):
         super().__init__(estados, alfabeto, estadoInicial, estadosFinais)
         self.alfabeto.add('&')
         self.epsilonFechos = {}
+        
+    def addTransicao(self, estadoInicial, simbolo, estadoProximo):
+        if not estadoInicial in self.estados:
+            raise EstadoInexistente(str(estadoInicial))
+        if not estadoProximo in self.estados:
+            raise EstadoInexistente(str(estadoProximo))
+        if not simbolo in self.alfabeto:
+            raise SimboloInexistente(str(simbolo))
+        # se existir o estado, simbolo e proximo estado entao adiciono a transicao
+        if not estadoInicial in self.transicoes:
+            self.transicoes[estadoInicial] = {}
+        if not simbolo in self.transicoes[estadoInicial]:
+            self.transicoes[estadoInicial][simbolo] = set()
+        self.transicoes[estadoInicial][simbolo].add(estadoProximo)
 
 # ======= Epsilon Fecho =========
 

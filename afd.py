@@ -31,9 +31,7 @@ class AFD():
         # se existir o estado, simbolo e proximo estado entao adiciono a transicao
         if not estadoInicial in self.transicoes:
             self.transicoes[estadoInicial] = {}
-        if not simbolo in self.transicoes[estadoInicial]:
-            self.transicoes[estadoInicial][simbolo] = set()
-        self.transicoes[estadoInicial][simbolo].add(estadoProximo)
+        self.transicoes[estadoInicial][simbolo] = set([estadoProximo])
 
     # ======= remove ===========
 
