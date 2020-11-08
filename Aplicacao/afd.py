@@ -27,6 +27,7 @@ class AFD():
         self.alfabeto.add(simbolo)
 
     def addTransicao(self, estadoInicial, simbolo, estadoProximo):
+        print(self.estados)
         if not estadoInicial in self.estados:
             raise EstadoInexistente(str(estadoInicial))
         if not estadoProximo in self.estados:

@@ -1,0 +1,3 @@
+S -> aW |cW |aD
+W -> aW |cW
+D -> a |b |bD |cD |c |aD

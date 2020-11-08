@@ -541,15 +541,29 @@ def menuMetodos(*args):
                     print("ja existe um objeto com esse nome")
                     continue
                 if len(entrada) > 1:
-                    afd = obj.converterParaAFD(entrada[1])
+                    er = entrada[1]
+                    if er in obj.instancias:
+                        objetos[nome2] = obj.converterParaAFD(er)
+                        print("novo AFD criado com o nome "+nome2)
+                    else:
+                        print(er+" nao pertence a ER")
                 else:
-                    afd = obj.converterParaAFD(None)
-                objetos[nome2] = afd
-                print("novo AFD criado com o nome "+nome2)
+                    objetos[nome2] = obj.converterParaAFD(None)
+                    print("novo AFD criado com o nome "+nome2)
             elif "print" in comando:
                 obj.printar()
 
 # ========= Execucao ===========
 
 if __name__ == "__main__":
-    main()
+    
+    #main()
+    afd = lerArquivoAF('afd1.txt', True)
+    afdu = afd.uniao(afd)
+    print(afdu.estados)
+
+    afdu.ajustarNomeEstados()
+    print(afdu.estados)
+
+    afdu.minimizar()
+    print(afdu.estados)
