@@ -27,7 +27,6 @@ class AFD():
         self.alfabeto.add(simbolo)
 
     def addTransicao(self, estadoInicial, simbolo, estadoProximo):
-        print(self.estados)
         if not estadoInicial in self.estados:
             raise EstadoInexistente(str(estadoInicial))
         if not estadoProximo in self.estados:
@@ -324,9 +323,9 @@ class AFD():
         # atualizar transicoes
         transicoes = self.transicoes
         self.transicoes = {}
-        for e in transicoes:
+        for e in [e for e in estados if e in transicoes]:
             for c in transicoes[e]:
-                for t in transicoes[e][c]:
+                for t in [t for t in transicoes[e][c] if t in estados]:
                     self.addTransicao(e, c, estados[refs[t].classe_index])
 
 # ======= Ajustar estados e transicoes para numeros de [0..nEstados] =======
