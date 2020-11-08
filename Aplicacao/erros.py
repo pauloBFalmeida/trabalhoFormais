@@ -17,7 +17,11 @@ class TransicaoInexistente(ErroNoAutomato):
         super().__init__(self.message)
 
 class ErroNaGramatica(Exception):
-    pass
+    def __init__(self, estado):
+        self.message = "Ocorreu um erro na gramatica."
+        super().__init__(self.message)
 
 class GramaticaNaoRegular(ErroNaGramatica):
-    pass
+    def __init__(self, estado):
+        self.message = "Gramatica nao e regular."
+        super().__init__(self.message)
