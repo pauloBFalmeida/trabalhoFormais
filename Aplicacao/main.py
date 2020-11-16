@@ -9,6 +9,7 @@ from afnd import *
 from gr import *
 from er import *
 from defreg import *
+from glc import *
 
 # ========= AF ===========
 def criarAFD(nEstados, alfabeto, estadoInicial, estadosFinais, transicoes):
@@ -67,6 +68,32 @@ def lerArquivoGR(arquivo):
             gr.addProducao(simbolo, derivacao)
     return gr
 
+# ========= GLC ===========
+def lerArquivoGLC(arquivo):
+    with open(arquivo, "r") as file:
+        linhas = file.read().split('\n')
+
+    glc = GLC()
+    primeiraLinha = True
+    for linha in linhas:
+        if len(linha) <= 0:
+            break
+        linha = linha.split("->")
+        simbolo = linha[0].strip()
+        if primeiraLinha:
+            primeiraLinha = False
+            glc.setSimboloInicial(simbolo)
+        for c in linha[1]:
+            if c.islower():
+                glc.addTerminal(c)
+            elif c.isupper():
+                glc.addNaoTerminal(c)
+        glc.addNaoTerminal(simbolo)
+        derivacoes = list(map(lambda x: x.strip(), linha[1].split("|")))
+        for derivacao in derivacoes:
+            glc.addProducao(simbolo, derivacao)
+    return glc
+
 # ========= ER ===========
 def lerArquivoER(arquivo):
     with open(arquivo, "r") as file:
@@ -101,7 +128,7 @@ def main():
             menuMetodos(args)
         elif "sair" in comando:
             rodando = False
-            
+
 # ========== Menu Help =========
 
 def menuHelp():
@@ -113,7 +140,7 @@ def menuHelp():
     print("/editar       - para exibir o menu de edicao de objetos")
     print("/metodos      - para exibir o menu de metodos de objetos")
     print("/sair         - para terminar o programa (objetos nao exportados serao perdidos)")
-    
+
 # ========== Nome dos Objetos =========
 
 def nomesObjetos():
@@ -124,7 +151,7 @@ def nomesObjetos():
     for nome in objetos:
         tipo = str(objetos[nome].__class__.__name__)
         print("- "+nome + " <"+ tipo +">")
-        
+
 # ========== Menu Printrar =========
 
 def menuPrintar(*args):
@@ -141,7 +168,7 @@ def menuPrintar(*args):
         return
     # printar
     objetos[nome].printar()
-    
+
 # ========== Menu Importar =========
 
 def menuImportar(*args):
@@ -173,6 +200,8 @@ def menuImportar(*args):
         objetos[nome] = lerArquivoGR(arquivo)
     elif "er" in tipo:
         objetos[nome] = lerArquivoER(arquivo)
+    elif "glc" in tipo:
+        objetos[nome] = lerArquivoGLC(arquivo)
     else:
         print("tipo nao encontrado")
         return
@@ -201,7 +230,7 @@ def menuExportar(*args):
     # exportar
     objetos[nome].exportarParaArquivo(arquivo)
     print("objeto "+nome+" foi exportado com o nome: "+arquivo)
-    
+
 # ========== Menu Editar =========
 
 def menuEditar(*args):
@@ -351,7 +380,7 @@ def modoEdicaoGR(obj):
             else:
                 print("comando nao reconhecido")
                 helpEdicao()
-                
+
 def modoEdicaoER(obj):
     def helpEdicao():
         print("\ncomandos possíveis")
@@ -550,6 +579,24 @@ def menuMetodos(*args):
                 else:
                     objetos[nome2] = obj.converterParaAFD(None)
                     print("novo AFD criado com o nome "+nome2)
+            elif "print" in comando:
+                obj.printar()
+    elif isinstance(obj, GLC):
+        print("metodos para GR")
+        print("    #/ajustar(NomeProducoes)")
+        print("    #/derivar")
+        print("    #/converter(ParaAFND)")
+        print("    #/print")
+        print("    #/sair")
+        while True:
+            print()
+            comando = input("#/")
+            if "sair" in comando:
+                break
+            elif "inut" in comando:
+                obj.removerInuteis()
+            elif "remepsilon" in comando:
+                obj.removerEpsilonProd()
             elif "print" in comando:
                 obj.printar()
 

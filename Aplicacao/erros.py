@@ -15,7 +15,7 @@ class EstadoInexistente(ErroNoAutomato):
         self.message = "O estado " + estado + " não existe."
         super().__init__(self.message)
 
-class SimboloInexistente(ErroNoAutomato):
+class SimboloInexistente():
     def __init__(self, simbolo):
         self.message = "O símbolo " + simbolo + " não existe."
         super().__init__(self.message)
@@ -25,7 +25,7 @@ class TransicaoInexistente(ErroNoAutomato):
         self.message = f"A transição delta({estadoInicial},{simbolo}) é vazia."
         super().__init__(self.message)
 
-# ======= GR ===========
+# ======= GR & GLC ===========
 
 class ErroNaGramatica(Exception):
     def __init__(self, estado):
