@@ -29,11 +29,11 @@ class GLC():
         #     raise GramaticaNaoRegular()
 
         if simbolo not in self.naoTerminais:
-            raise SimboloInexistente()
+            raise SimboloInexistente(simbolo)
 
         for c in derivacao:
             if c not in self.naoTerminais and c not in self.terminais:
-                raise SimboloInexistente()
+                raise SimboloInexistente(c)
 
         if simbolo not in self.producoes:
             self.producoes[simbolo] = set()
@@ -220,15 +220,50 @@ class GLC():
         self.simboloInicial = "#"
         self.producoes = novasProducoes
 
-    # def simbolosAEsquerda(self, simbolo, visited, trail):
-    #     if simbolo in visited
-    #
-    # def encontrarRecsIndiretas(self):
-    #
-    #
-    #
-    #
-    # def remRecEsq(self):
+    def geracoesEsq(self, s):
+
+        geracoes = set()
+        if s in self.producoes:
+            for deriv in self.producoes[s]:
+                if deriv[0] in self.naoTerminais and deriv[0] not in geracoes:
+                    geracoes.add(deriv[0])
+
+        return geracoes
+
+    def encontrarRecsIndiretas(self):
+
+        geracoes = {}
+        for s in self.naoTerminais:
+            geracoes[s] = self.geracoesEsq( s)
+
+        while True:
+            mudou = False
+
+            for s in geracoes:
+                novo = geracoes[s]
+                for k in geracoes[s]:
+                    novo = novo.union(geracoes[k])
+                if len(novo) > len(geracoes[s]):
+                    geracoes[s] = novo
+                    mudou = True
+
+            if not mudou:
+                break
+
+        return geracoes
+
+
+
+
+
+
+
+    def remRecEsq(self):
+
+        g = self.encontrarRecsIndiretas()
+
+        for k in g:
+            print(f'{k} : {g[k]}')
 
 
 

@@ -15,7 +15,7 @@ class EstadoInexistente(ErroNoAutomato):
         self.message = "O estado " + estado + " não existe."
         super().__init__(self.message)
 
-class SimboloInexistente():
+class SimboloInexistente(Exception):
     def __init__(self, simbolo):
         self.message = "O símbolo " + simbolo + " não existe."
         super().__init__(self.message)

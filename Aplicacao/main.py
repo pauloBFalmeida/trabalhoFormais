@@ -84,10 +84,10 @@ def lerArquivoGLC(arquivo):
             primeiraLinha = False
             glc.setSimboloInicial(simbolo)
         for c in linha[1]:
-            if c.islower():
-                glc.addTerminal(c)
-            elif c.isupper():
+            if c.isupper():
                 glc.addNaoTerminal(c)
+            else:
+                glc.addTerminal(c)
         glc.addNaoTerminal(simbolo)
         derivacoes = list(map(lambda x: x.strip(), linha[1].split("|")))
         for derivacao in derivacoes:
@@ -582,10 +582,10 @@ def menuMetodos(*args):
             elif "print" in comando:
                 obj.printar()
     elif isinstance(obj, GLC):
-        print("metodos para GR")
-        print("    #/ajustar(NomeProducoes)")
-        print("    #/derivar")
-        print("    #/converter(ParaAFND)")
+        print("metodos para GLC")
+        print("    #/inut")
+        print("    #/remepsilon")
+        print("    #/remesq")
         print("    #/print")
         print("    #/sair")
         while True:
@@ -597,6 +597,8 @@ def menuMetodos(*args):
                 obj.removerInuteis()
             elif "remepsilon" in comando:
                 obj.removerEpsilonProd()
+            elif "remesq" in comando:
+                obj.remRecEsq()
             elif "print" in comando:
                 obj.printar()
 
