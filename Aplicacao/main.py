@@ -103,6 +103,7 @@ def lerArquivoER(arquivo):
 
 # ========= Main ===========
 objetos = {}
+tipos = ['afd', 'afnd', 'gr', 'er', 'glc']
 
 def main():
     menuHelp()
@@ -180,7 +181,7 @@ def menuImportar(*args):
     else:
         print("<nome desejado> <tipo> <nome do arquivo>")
         print("nome desejado: nome para o objeto a ser criado")
-        print("tipos: afd afnd gr er")
+        print("tipos: "+"".join([t+" " for t in tipos]))
         print("nome do arquivo: nome do arquivo com extensao")
         entrada = input().split(' ')
     # nome
@@ -259,6 +260,9 @@ def menuEditar(*args):
     elif isinstance(obj, ER):
         print("editando " + nome + "...")
         modoEdicaoER(obj)
+    elif isinstance(obj, GLC):
+        print("editando " + nome + "...")
+        modoEdicaoGLC(obj)
 
 def modoEdicaoAF(obj):
 
@@ -417,6 +421,62 @@ def modoEdicaoER(obj):
             elif op == "remove":
                 definicao = args[0]
                 obj.remDefinicao(definicao)
+            else:
+                print("comando nao reconhecido")
+                helpEdicao()
+
+def modoEdicaoGLC(obj):
+    def helpEdicao():
+        print("\ncomandos possíveis")
+        print("    #/add naoterminal  <nao terminal>")
+        print("    #/add terminal <terminal>")
+        print("    #/add producao <lado esquerdo> <lado direito>")
+        print("    #/remove naoterminal <nao terminal>")
+        print("    #/remove terminal <terminal>")
+        print("    #/remove producao <lado esquerdo> <lado direito>")
+        print("    #/sair")
+        print("    #/print")
+
+    helpEdicao()
+    while True:
+        entrada = input('#/').split(' ')
+        if len(entrada) == 0:
+            continue
+        if entrada[0] == "sair":
+            break
+        if entrada[0] == "print":
+            obj.printar()
+            continue
+        if len(entrada) < 3:
+            print("comando nao reconhecido")
+            helpEdicao()
+        else:
+            op, edit, args = entrada[0], entrada[1], entrada[2:]
+
+            if op == "add" and edit == "naoterminal":
+                naoterminal = args[0]
+                obj.addNaoTerminal(naoterminal)
+            elif op == "add" and edit == "terminal":
+                terminal = args[0]
+                obj.addTerminal(terminal)
+            elif op == "add" and edit == "producao":
+                if len(args) == 2:
+                    obj.addProducao(args[0], args[1])
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
+            elif op == "remove" and edit == "naoterminal":
+                naoterminal = args[0]
+                obj.remNaoTerminal(naoterminal)
+            elif op == "remove" and edit == "terminal":
+                terminal = args[0]
+                obj.remTerminal(terminal)
+            elif op == "remove" and edit == "producao":
+                if len(args) == 2:
+                    obj.remProducao(args[0], args[1])
+                else:
+                    print("comando nao reconhecido")
+                    helpEdicao()
             else:
                 print("comando nao reconhecido")
                 helpEdicao()
@@ -581,11 +641,13 @@ def menuMetodos(*args):
                     print("novo AFD criado com o nome "+nome2)
             elif "print" in comando:
                 obj.printar()
+    # ------- GLC -------
     elif isinstance(obj, GLC):
         print("metodos para GLC")
-        print("    #/inut")
+        print("    #/reminuteis")
         print("    #/remepsilon")
-        print("    #/remesq")
+        print("    #/remrecesq")
+        print("    #/chomsky")
         print("    #/print")
         print("    #/sair")
         while True:
@@ -593,12 +655,14 @@ def menuMetodos(*args):
             comando = input("#/")
             if "sair" in comando:
                 break
-            elif "inut" in comando:
+            elif "inuteis" in comando:
                 obj.removerInuteis()
-            elif "remepsilon" in comando:
+            elif "epsilon" in comando:
                 obj.removerEpsilonProd()
-            elif "remesq" in comando:
+            elif "recesq" in comando:
                 obj.remRecEsq()
+            elif "chomsky" in comando:
+                obj.formaNormalChomsky()
             elif "print" in comando:
                 obj.printar()
 

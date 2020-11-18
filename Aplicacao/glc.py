@@ -22,22 +22,15 @@ class GLC():
         self.naoTerminais.add(a)
 
     def addProducao(self, simbolo, derivacao):
-        # if (len(derivacao) == 1 and derivacao not in self.terminais) or \
-        #    (len(derivacao) == 2 and (derivacao[0] not in self.terminais or derivacao[1] not in self.naoTerminais) or \
-        #    (len(derivacao) > 2)) or \
-        #    (len(simbolo) != 1 or simbolo not in self.naoTerminais):
-        #     raise GramaticaNaoRegular()
-
         if simbolo not in self.naoTerminais:
             raise SimboloInexistente(simbolo)
-
         for c in derivacao:
             if c not in self.naoTerminais and c not in self.terminais:
                 raise SimboloInexistente(c)
-
+        # adiciona a producao
         if simbolo not in self.producoes:
             self.producoes[simbolo] = set()
-        self.producoes[simbolo].add(derivacao)
+        self.producoes[simbolo].add(tuple(derivacao))
 
     # ------- remover -------
 
@@ -66,6 +59,17 @@ class GLC():
         if esquerdo in self.producoes:
             if direito in self.producoes[esquerdo]:
                 self.producoes[esquerdo].discard(direito)
+
+# ========== Remover Inuteis =========
+
+    def removerInuteis(self):
+        while True:
+            p1 = self.removerInalcancaveis()
+            p2 = self.removerImprodutivos()
+            # p2 = False
+            # p1 = False
+            if (not p1) and (not p2):
+                break
 
     def removerImprodutivos(self):
         produtivos = self.terminais
@@ -148,15 +152,7 @@ class GLC():
         self.producoes = novasProducoes
         return mudou
 
-    def removerInuteis(self):
-        while True:
-            p1 = self.removerInalcancaveis()
-            p2 = self.removerImprodutivos()
-            # p2 = False
-            # p1 = False
-            if (not p1) and (not p2):
-                break
-
+# ======== Remover Epsilon Producoes ==============
 
     def removerEpsilonProd(self):
 
@@ -206,7 +202,7 @@ class GLC():
 
             novasDerivacoes = set()
             for deriv in self.producoes[s]:
-                if deriv == "&":
+                if deriv[0] == "&":
                     continue
                 permutacoes = set(perms(deriv))
                 if "" in permutacoes:
@@ -216,56 +212,135 @@ class GLC():
             novasProducoes[s] = novasDerivacoes
 
         if self.simboloInicial in anulaveis:
-            novasProducoes["#"] = {self.simboloInicial, "&"}
-        self.simboloInicial = "#"
+            novasProducoes["S'"] = {tuple(self.simboloInicial), tuple("&")}
+            self.simboloInicial = "S'"
+            self.naoTerminais.add("S'")
         self.producoes = novasProducoes
 
-    def geracoesEsq(self, s):
+# ========= Forma Normal de Chomsky ==========
 
-        geracoes = set()
-        if s in self.producoes:
-            for deriv in self.producoes[s]:
-                if deriv[0] in self.naoTerminais and deriv[0] not in geracoes:
-                    geracoes.add(deriv[0])
+    def formaNormalChomsky(self):
+        self.removerEpsilonProd()
+        self.remProdUnitarias()
+        self.removerInuteis()
+        # troca os terminais por nao terminais
+        producoes = self.producoes
+        self.producoes = {}
+        tParaNT = {}
+        for s in producoes:
+            for prod in producoes[s]:
+                if len(prod) == 1:
+                    self.addProducao(s, prod)
+                if len(prod) >= 2:
+                    novaProd = []
+                    for c in prod:
+                        if c in self.terminais:
+                            if c not in tParaNT:
+                                tParaNT[c] = c.upper()+"#"
+                                self.naoTerminais.add(tParaNT[c])
+                            novaProd.append(tParaNT[c])
+                        else:
+                            novaProd.append(c)
+                    self.addProducao(s, novaProd)
+        for t in tParaNT:
+            self.naoTerminais.add(tParaNT[t])
+            self.producoes[tParaNT[t]] = t
+        # quebra as producoes com mais de 2 nao terminais
+        producoes = self.producoes
+        self.producoes = {}
+        for s in producoes:
+            contador = 1
+            for prod in producoes[s]:
+                if len(prod) > 2:
+                    novaNT1 = s
+                    for nt in prod[:-2]:
+                        novaNT2 = s + str(contador)
+                        self.naoTerminais.add(novaNT2)
+                        self.addProducao(novaNT1, [nt, novaNT2])
+                        novaNT1 = novaNT2
+                        contador += 1
+                    self.addProducao(novaNT2, [prod[-2], prod[-1]])
+                else:
+                    self.addProducao(s, prod)
 
-        return geracoes
 
-    def encontrarRecsIndiretas(self):
-
-        geracoes = {}
+    def remProdUnitarias(self):
+        conjN = {}
         for s in self.naoTerminais:
-            geracoes[s] = self.geracoesEsq( s)
-
-        while True:
+            conjN[s] = set([s])
+            if s in self.producoes:
+                for deriv in self.producoes[s]:
+                    if len(deriv) == 1 and deriv[0] in self.naoTerminais:
+                        conjN[s].add(deriv[0])
+        #
+        mudou = True
+        while mudou:
             mudou = False
-
-            for s in geracoes:
-                novo = geracoes[s]
-                for k in geracoes[s]:
-                    novo = novo.union(geracoes[k])
-                if len(novo) > len(geracoes[s]):
-                    geracoes[s] = novo
+            for s in self.producoes:
+                novo = conjN[s]
+                for k in conjN[s]:
+                    novo = novo.union(conjN[k])
+                if len(novo) > len(conjN[s]):
+                    conjN[s] = novo
                     mudou = True
+        # 
+        producoes = self.producoes
+        self.producoes = {}
+        # para cada nao terminal pego as producoes nao unitarias
+        for s in producoes:
+            for prod in [p for p in producoes[s] if not (len(p) == 1 and p[0] in self.naoTerminais)]:
+                # para todos os NT com 's' no conjN  
+                for k in conjN:
+                    if s in conjN[k]:
+                        # add producoes
+                        if k not in self.producoes:
+                            self.producoes[k] = set()
+                        self.producoes[k].add(prod)
 
-            if not mudou:
-                break
 
-        return geracoes
-
-
-
-
-
+# ========= Recursao a Esquerda =============
 
 
     def remRecEsq(self):
+        producoes = self.producoes
+        self.producoes = {}
+        for i in producoes:
+            for j in producoes:
+                # for i - j
+                if i == j:
+                    # add as proprias producoes
+                    for p in producoes[i]:
+                        self.addProducao(i, p)
+                    break
+                for prodi in producoes[i]:
+                    # remove producao (n a adicionamos nas novas producoes)
+                    if j == prodi[0]:
+                        for prodj in producoes[j]:
+                            self.addProducao(i, prodj+prodi[1:])
+                    else:
+                        self.addProducao(i, prodi)
+            #
+            recursivos = []
+            naoRec = []
+            for prod in self.producoes[i]:
+                if prod[0] == i:
+                    recursivos.append(prod[1:])
+                else:
+                    naoRec.append(prod)
+            if len(recursivos) > 0:
+                ia = i+"@"
+                self.naoTerminais.add(ia)
+                novasProdI  = set()
+                novasProdIa = set(tuple("&"))
+                for r in recursivos:
+                    novasProdIa.add(r+tuple(ia))
+                for n in naoRec:
+                    novasProdI.add(n+tuple(ia))
+                self.producoes[i]  = novasProdI
+                self.producoes[ia] = novasProdIa
 
-        g = self.encontrarRecsIndiretas()
 
-        for k in g:
-            print(f'{k} : {g[k]}')
-
-
+# ======= printar ===========
 
     def printar(self):
         simbolosNaoIniciais = [p for p in self.producoes if p != self.simboloInicial]
@@ -273,5 +348,19 @@ class GLC():
         for simbolo in [self.simboloInicial] + simbolosNaoIniciais:
             l = simbolo + " -> "
             for prod in self.producoes[simbolo]:
-                l += prod + " | "
+                l += "".join(prod) + " | "
             print(l[:-2])
+
+# ======= Exportar para Arquivo =========
+
+    def exportarParaArquivo(self, nomeArquivo):
+        texto = ""
+        # producoes
+        for simbolo in self.producoes:
+            texto += simbolo + " -> "
+            for derivacao in self.producoes[simbolo]:
+                texto += derivacao + " |"
+            texto = texto[:-2] + '\n'
+        # escrever no arquivo
+        with open(nomeArquivo, 'w') as arquivo:
+            arquivo.write(texto)
