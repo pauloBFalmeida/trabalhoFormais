@@ -647,6 +647,7 @@ def menuMetodos(*args):
         print("    #/reminuteis")
         print("    #/remepsilon")
         print("    #/remrecesq")
+        print("    #/analisar")
         print("    #/chomsky")
         print("    #/print")
         print("    #/sair")
@@ -665,6 +666,8 @@ def menuMetodos(*args):
                 obj.formaNormalChomsky()
             elif "print" in comando:
                 obj.printar()
+            elif "analisar" in comando:
+                obj.analisar()
 
 # ========= Execucao ===========
 

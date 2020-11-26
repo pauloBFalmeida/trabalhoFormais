@@ -10,6 +10,9 @@ class GLC():
         self.naoTerminais = set(naoTerminais)
         self.producoes = {}
 
+        self.firsts = {}
+        self.follows = {}
+
     def setSimboloInicial(self, s):
         self.simboloInicial = s
 
@@ -283,13 +286,13 @@ class GLC():
                 if len(novo) > len(conjN[s]):
                     conjN[s] = novo
                     mudou = True
-        # 
+        #
         producoes = self.producoes
         self.producoes = {}
         # para cada nao terminal pego as producoes nao unitarias
         for s in producoes:
             for prod in [p for p in producoes[s] if not (len(p) == 1 and p[0] in self.naoTerminais)]:
-                # para todos os NT com 's' no conjN  
+                # para todos os NT com 's' no conjN
                 for k in conjN:
                     if s in conjN[k]:
                         # add producoes
@@ -338,6 +341,123 @@ class GLC():
                     novasProdI.add(n+tuple(ia))
                 self.producoes[i]  = novasProdI
                 self.producoes[ia] = novasProdIa
+
+# ======== reconhecedor ========
+
+    def calcfirsts(self, c):
+        if c in self.firsts:
+            return self.firsts[c].copy()
+
+        if c in self.terminais:
+            self.firsts[c] = set(c)
+            return set(c)
+
+        firstc = set()
+        if c in self.producoes:
+            for prod in self.producoes[c]:
+                if prod[0] in self.terminais:
+                    firstc.add(prod[0])
+                elif prod == '&':
+                    print(f'{c} !!!!!')
+                    firstc.add('&')
+                else:
+                    soEpsilons = True
+                    for nt in prod:
+                        cf = self.calcfirsts(nt)
+                        if '&' in cf:
+                            cf.discard('&')
+                        firstc = firstc.union(cf)
+                        print(f'first {c} <- {cf}')
+                        print(f'{firstc}')
+                        print(('&' not in self.firsts[nt]))
+                        if '&' not in self.firsts[nt]:
+                            soEpsilons = False
+                            break
+                    if soEpsilons:
+                        print(f'para {c} adicina &')
+                        firstc.add('&')
+        self.firsts[c] = firstc
+        return firstc.copy()
+
+    def calcfirstsCadeia(self, cadeia):
+
+        firstc = set()
+        soEpsilons = True
+        for nt in cadeia:
+            firstc.union(self.calcfirsts(nt))
+            if '&' not in self.firsts[nt]:
+                soEpsilons = False
+                break
+        if soEpsilons:
+            firstc.add('&')
+        return firstc
+
+    def calcfollows1(self):
+
+        for c in self.naoTerminais:
+            # followc = set()
+            if c in self.producoes:
+                for prod in self.producoes[c]:
+
+                    for i in range(len(prod)-1):
+                        atual = prod[i]
+                        if atual in self.terminais:
+                            continue
+
+                        if atual not in self.follows:
+                            self.follows[atual] = set()
+
+                        self.follows[atual] = self.follows[atual].union(self.calcfirstsCadeia(prod[i+1:]))
+        return
+
+    def calcfollows2(self):
+        haMudanca = False
+        for c in self.naoTerminais:
+            # followc = set()
+            if c in self.producoes:
+                for prod in self.producoes[c]:
+
+                    for i in range(len(prod)):
+                        atual = prod[i]
+                        if atual in self.terminais:
+                            continue
+                        if atual not in self.follows:
+                            self.follows[atual] = set()
+
+                        if i == len(prod)-1:
+                            l = len(self.follows[atual])
+                            self.follows[atual] = self.follows[atual].union(self.follows[c])
+                            if (len(self.follows[atual]) > l):
+                                haMudanca = True
+                            continue
+                        if '&' in self.calcfirstsCadeia(prod[i+1:]):
+                            l = len(self.follows[atual])
+                            self.follows[atual] = self.follows[atual].union(self.follows[c])
+                            if (len(self.follows[atual]) > l):
+                                haMudanca = True
+        return haMudanca
+
+    def analisar(self):
+        self.remRecEsq()
+
+        # self.fatorar()
+        for s in self.naoTerminais:
+            self.calcfirsts(s)
+
+        self.follows[self.simboloInicial] = set('$')
+
+        self.calcfollows1()
+        while self.calcfollows2(): pass
+
+        print("FIRSTS")
+        for f in self.firsts:
+            print(f'{f} -> {self.firsts[f]}')
+
+        print("Follows")
+        for f in self.follows:
+            print(f'{f} -> {self.follows[f]}')
+
+
 
 
 # ======= printar ===========

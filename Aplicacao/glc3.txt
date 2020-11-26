@@ -1,6 +1,4 @@
-P -> KL | bKLe
-K -> cK | TV
-T -> tT | &
-V -> vV | &
-L -> LC | C
-C -> P | com | &
+S -> ABC
+A -> aA | &
+B -> bB | ACd
+C -> cC | &
