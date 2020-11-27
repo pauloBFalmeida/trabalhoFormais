@@ -307,6 +307,13 @@ class GLC():
 
     def remRecEsq(self):
         producoes = self.producoes
+        # remover producoes circular
+        for s in self.producoes:
+            for prod in self.producoes[s].copy():
+                if prod == tuple(s):
+                    producoes[s].discard(prod)
+
+        # 
         self.producoes = {}
         for i in producoes:
             for j in producoes:
@@ -320,7 +327,10 @@ class GLC():
                     # remove producao (n a adicionamos nas novas producoes)
                     if j == prodi[0]:
                         for prodj in producoes[j]:
-                            self.addProducao(i, prodj+prodi[1:])
+                            if prodj != tuple('&'):
+                                self.addProducao(i, prodj+prodi[1:])
+                            else:
+                                self.addProducao(i, prodi[1:])
                     else:
                         self.addProducao(i, prodi)
             #
@@ -342,6 +352,76 @@ class GLC():
                     novasProdI.add(n+tuple(ia))
                 self.producoes[i]  = novasProdI
                 self.producoes[ia] = novasProdIa
+
+# ======== Fatoracao ========
+
+    def fatoracao(self):
+        self.remNDetDireto()
+
+
+    def remNDetIndireto(self):
+
+        for s in self.producoes:
+            self.calcfirsts(s)
+
+        for s in self.producoes:
+            auxiliar = []
+            for prod in self.producoes[s]:
+                firsts = self.calcfirstsCadeia(prod)
+                auxiliar.append( (prod, firsts) )
+
+
+
+
+
+    def remNDetDireto(self):
+        
+        producoes = self.producoes
+        self.producoes = {}
+        for s in producoes.copy():
+            auxiliar = []
+            for prod in producoes[s].copy():
+                if len(auxiliar) == 0:
+                    auxiliar.append(prod)
+                    continue
+                #
+                encontrouPref = False
+                for i in range(len(auxiliar)):
+                    prodA = auxiliar[i]
+                    # maior prefixo
+                    maxPref = []
+                    j = 0
+                    while prod[j] == prodA[j]:
+                        maxPref.append(prod[j])
+                        j += 1
+                        if j >= min(len(prod), len(prodA)):
+                            break
+                    if len(maxPref) > 0:
+                        auxiliar[i] = tuple(maxPref)
+                        encontrouPref = True
+                # 
+                if not encontrouPref:
+                    auxiliar.append(prod)
+            #
+            contador = 1
+            for aux in auxiliar:
+                producoesAux = []
+                for prod in producoes[s]:
+                    if len(aux) <= len(prod) and aux == prod[:len(aux)]:
+                        producoesAux.append(prod)
+                if len(producoesAux) > 1:
+                    nt = s +'!'+ str(contador)
+                    self.naoTerminais.add(nt)
+                    contador += 1
+                    # 
+                    self.addProducao(s, aux+ (nt,) )
+                    for p in producoesAux:
+                        p = p[len(aux):]
+                        p = p if len(p) > 0 else tuple('&')
+                        self.addProducao(nt, p)
+                else:
+                    self.addProducao(s, aux)
+
 
 # ======== reconhecedor ========
 

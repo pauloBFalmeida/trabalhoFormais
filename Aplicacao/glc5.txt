@@ -1,4 +1,5 @@
 S -> Ab | Ba
-A -> aa | Ab
-B -> bb | Ba
+A -> aB | aBC
+B -> bb | bB
+C -> a
 
