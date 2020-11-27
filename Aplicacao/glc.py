@@ -369,12 +369,26 @@ class GLC():
             auxiliar = []
             problematicas = set()
             for prod in self.producoes[s]:
-                firsts = self.calcfirstsCadeia(prod)
+                firsts = self.calcFirstsCadeia(prod)
+                # interseccao com o firsts de uma aux 
                 for a in auxiliar:
                     if len(firsts.intersection(a[1])) > 0:
                         problematicas.add(prod)
                         problematicas.add(a[0])
                         haMudanca = True
+                #
+                for i in range(len(prod)-1):
+                    c = prod[i]
+                    #print(c)
+                    #print(self.firsts[c])
+                    #print('&' in self.firsts[c])
+                    #print(len(self.firsts[c].intersection(self.calcFirstsCadeia(prod[i+1:]))) > 0)
+                    if c in self.naoTerminais and '&' in self.firsts[c] and \
+                            len(self.firsts[c].intersection(self.calcFirstsCadeia(prod[i+1:]))) > 0:
+                        problematicas.add(prod)
+                        #print(c+'dentro do if')
+                        haMudanca = True
+                # 
                 auxiliar.append( (prod, firsts) )
             #
             for prod in problematicas:
@@ -389,7 +403,6 @@ class GLC():
                     self.addProducao(s, d)
         #
         self.remNDetDireto()
-
         return haMudanca
 
     
@@ -495,7 +508,7 @@ class GLC():
         self.firsts[c] = firstc
         return firstc.copy()
 
-    def calcfirstsCadeia(self, cadeia):
+    def calcFirstsCadeia(self, cadeia):
 
         firstc = set()
         soEpsilons = True
@@ -527,8 +540,8 @@ class GLC():
 
                         if atual not in self.follows:
                             self.follows[atual] = set()
-                        print(f'para {prod[i+1:]} = {self.calcfirstsCadeia(prod[i+1:])}')
-                        self.follows[atual] = self.follows[atual].union(self.calcfirstsCadeia(prod[i+1:]))
+                        print(f'para {prod[i+1:]} = {self.calcFirstsCadeia(prod[i+1:])}')
+                        self.follows[atual] = self.follows[atual].union(self.calcFirstsCadeia(prod[i+1:]))
                         if '&' in self.follows[atual]:
                             self.follows[atual].discard('&')
         return
@@ -553,7 +566,7 @@ class GLC():
                             if (len(self.follows[atual]) > l):
                                 haMudanca = True
                             continue
-                        if '&' in self.calcfirstsCadeia(prod[i+1:]):
+                        if '&' in self.calcFirstsCadeia(prod[i+1:]):
                             l = len(self.follows[atual])
                             self.follows[atual] = self.follows[atual].union(self.follows[c])
                             if (len(self.follows[atual]) > l):
@@ -566,7 +579,7 @@ class GLC():
         for s in self.naoTerminais:
             if s in self.producoes:
                 for prod in self.producoes[s]:
-                    pf = self.calcfirstsCadeia(prod)
+                    pf = self.calcFirstsCadeia(prod)
 
                     if '&' in pf:
                         for t in self.follows[s]:

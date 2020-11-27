@@ -1,2 +1,2 @@
-S -> iVe | ie
+S -> iVe
 V -> e | &
