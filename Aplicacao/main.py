@@ -644,11 +644,11 @@ def menuMetodos(*args):
     # ------- GLC -------
     elif isinstance(obj, GLC):
         print("metodos para GLC")
-        print("    #/inuteis")
-        print("    #/epsilon")
-        print("    #/recesq")
-        print("    #/fatoracao")
-        print("    #/analisar")
+        print("    #/inuteis (remover simbolos inuteis)")
+        print("    #/epsilon (remover epsilon producoes)")
+        print("    #/recesq (remover recursao esquerda)")
+        print("    #/fatoracao <profundidade maxima>")
+        print("    #/analisar <entrada>")
         print("    #/chomsky")
         print("    #/print")
         print("    #/sair")
@@ -659,16 +659,22 @@ def menuMetodos(*args):
                 break
             elif "inuteis" in comando:
                 obj.removerInuteis()
+                print('inuteis bem sucedida')
             elif "epsilon" in comando:
                 obj.removerEpsilonProd()
+                print('epsilon bem sucedida')
             elif "recesq" in comando:
                 obj.remRecEsq()
+                print('recesq bem sucedida')
             elif "fatoracao" in comando:
-                obj.fatoracao()
+                obj.fatoracao(int(comando[1]))
+                print('fatoracao bem sucedida')
             elif "analisar" in comando:
                 obj.analisar(comando[1])
+                print('analisar bem sucedido')
             elif "chomsky" in comando:
                 obj.formaNormalChomsky()
+                print('chomsky bem sucedida')
             elif "print" in comando:
                 obj.printar()
 

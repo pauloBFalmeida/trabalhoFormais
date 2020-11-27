@@ -1,5 +1,2 @@
-S -> Ab | Ba
-A -> aB | aBC
-B -> bb | bB
-C -> a
-
+S -> iVe | ie
+V -> e | &

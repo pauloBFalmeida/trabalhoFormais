@@ -355,24 +355,58 @@ class GLC():
 
 # ======== Fatoracao ========
 
-    def fatoracao(self):
-        self.remNDetDireto()
+    def fatoracao(self, profundidade):
+        while profundidade > 0 and self.remNDetIndireto():
+            profundidade -= 1
 
 
     def remNDetIndireto(self):
-
+        haMudanca = False
         for s in self.producoes:
             self.calcfirsts(s)
-
+        # encontrar producoes que levam ao nao determinismo
         for s in self.producoes:
             auxiliar = []
+            problematicas = set()
             for prod in self.producoes[s]:
                 firsts = self.calcfirstsCadeia(prod)
+                for a in auxiliar:
+                    if len(firsts.intersection(a[1])) > 0:
+                        problematicas.add(prod)
+                        problematicas.add(a[0])
+                        haMudanca = True
                 auxiliar.append( (prod, firsts) )
+            #
+            for prod in problematicas:
+                self.producoes[s].discard(prod)
+            #
+            for prod in problematicas:
+                derivacoes = self.derivar(prod)
+                if tuple() in derivacoes:
+                    derivacoes.remove(tuple())
+                    derivacoes.append(tuple('&'))
+                for d in derivacoes:
+                    self.addProducao(s, d)
+        #
+        self.remNDetDireto()
 
+        return haMudanca
 
-
-
+    
+    def derivar(self, entrada):
+        if len(entrada) == 0:
+            return [tuple()]
+        if entrada[0] in self.terminais:
+            return [(entrada[0],) + prod for prod in self.derivar(entrada[1:])]
+        elif entrada[0] in self.producoes:
+            saida = []
+            derivacoes = self.derivar(entrada[1:])
+            for prod in self.producoes[entrada[0]]:
+                if prod == tuple('&'):
+                    saida += derivacoes
+                else:
+                    saida += [prod + deriv for deriv in derivacoes]
+            return saida
 
     def remNDetDireto(self):
         
