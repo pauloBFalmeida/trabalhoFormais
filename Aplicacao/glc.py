@@ -12,6 +12,7 @@ class GLC():
 
         self.firsts = {}
         self.follows = {}
+        self.tabela = {}
 
     def setSimboloInicial(self, s):
         self.simboloInicial = s
@@ -356,9 +357,10 @@ class GLC():
         if c in self.producoes:
             for prod in self.producoes[c]:
                 if prod[0] in self.terminais:
+                    # print(f'{c} adic {prod[0]}')
                     firstc.add(prod[0])
                 elif prod == '&':
-                    print(f'{c} !!!!!')
+                    # print(f'{c} !!!!!')
                     firstc.add('&')
                 else:
                     soEpsilons = True
@@ -367,14 +369,14 @@ class GLC():
                         if '&' in cf:
                             cf.discard('&')
                         firstc = firstc.union(cf)
-                        print(f'first {c} <- {cf}')
-                        print(f'{firstc}')
-                        print(('&' not in self.firsts[nt]))
+                        # print(f'first {c} <- {cf}')
+                        # print(f'{firstc}')
+                        # print(('&' not in self.firsts[nt]))
                         if '&' not in self.firsts[nt]:
                             soEpsilons = False
                             break
                     if soEpsilons:
-                        print(f'para {c} adicina &')
+                        # print(f'para {c} adiciona &')
                         firstc.add('&')
         self.firsts[c] = firstc
         return firstc.copy()
@@ -384,7 +386,10 @@ class GLC():
         firstc = set()
         soEpsilons = True
         for nt in cadeia:
-            firstc.union(self.calcfirsts(nt))
+            cf = self.calcfirsts(nt)
+            if '&' in cf:
+                cf.discard('&')
+            firstc = firstc.union(cf)
             if '&' not in self.firsts[nt]:
                 soEpsilons = False
                 break
@@ -397,6 +402,8 @@ class GLC():
         for c in self.naoTerminais:
             # followc = set()
             if c in self.producoes:
+                if c not in self.follows:
+                    self.follows[c] = set()
                 for prod in self.producoes[c]:
 
                     for i in range(len(prod)-1):
@@ -406,8 +413,10 @@ class GLC():
 
                         if atual not in self.follows:
                             self.follows[atual] = set()
-
+                        print(f'para {prod[i+1:]} = {self.calcfirstsCadeia(prod[i+1:])}')
                         self.follows[atual] = self.follows[atual].union(self.calcfirstsCadeia(prod[i+1:]))
+                        if '&' in self.follows[atual]:
+                            self.follows[atual].discard('&')
         return
 
     def calcfollows2(self):
@@ -437,8 +446,26 @@ class GLC():
                                 haMudanca = True
         return haMudanca
 
-    def analisar(self):
-        self.remRecEsq()
+    def construirTabela(self):
+        self.tabela = {}
+
+        for s in self.naoTerminais:
+            if s in self.producoes:
+                for prod in self.producoes[s]:
+                    pf = self.calcfirstsCadeia(prod)
+
+                    if '&' in pf:
+                        for t in self.follows[s]:
+                            self.tabela[(s, t)] = prod
+
+                    pf.discard('&')
+
+                    for t in pf:
+                        self.tabela[(s, t)] = prod
+
+
+    def construirAnalisador(self):
+        # self.remRecEsq()
 
         # self.fatorar()
         for s in self.naoTerminais:
@@ -456,6 +483,62 @@ class GLC():
         print("Follows")
         for f in self.follows:
             print(f'{f} -> {self.follows[f]}')
+
+        for s in self.naoTerminais:
+            if len(self.firsts[s].intersection(self.follows[s])) != 0:
+                print("Linguagem não pode ser parseada com LL(1)")
+                return
+
+        self.construirTabela()
+
+        for t in self.tabela:
+            print(f'{t} -> {self.tabela[t]}')
+
+
+
+
+    def analisar(self, sentenca):
+        self.construirAnalisador()
+        sentenca = sentenca + '$'
+        cabecote = 0
+        pilha = ['$']
+
+        pilha.append(self.simboloInicial)
+
+        while True:
+
+            print()
+            print(sentenca[cabecote:])
+            print(pilha)
+
+            topo = pilha[-1]
+            s = sentenca[cabecote]
+
+            if topo == "&":
+                pilha.pop()
+                continue
+
+            if topo == "$" and s == "$":
+                print("aceita")
+                break
+            elif topo in self.terminais and topo == s:
+                print("desempilha")
+                pilha.pop()
+                cabecote += 1
+            else:
+                if (topo, s) in self.tabela:
+                    prod = list(self.tabela[(topo, s)])
+                    print("producao: " + str(prod))
+                    prod.reverse()
+                    pilha.pop()
+                    for i in prod:
+                        pilha.append(i)
+                else:
+                    print("rejeita")
+                    break
+
+
+
 
 
 

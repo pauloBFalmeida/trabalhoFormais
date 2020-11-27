@@ -653,7 +653,7 @@ def menuMetodos(*args):
         print("    #/sair")
         while True:
             print()
-            comando = input("#/")
+            comando = input("#/").split()
             if "sair" in comando:
                 break
             elif "inuteis" in comando:
@@ -667,7 +667,7 @@ def menuMetodos(*args):
             elif "print" in comando:
                 obj.printar()
             elif "analisar" in comando:
-                obj.analisar()
+                obj.analisar(comando[1])
 
 # ========= Execucao ===========
 
