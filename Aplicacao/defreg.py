@@ -36,7 +36,7 @@ class DefReg:
         if s[-1] not in ['(', ' ', ')', '*', '?', '+', '|', '[', ']']:
             if s[inicio:i] != '':
                 self.cadeias.append(s[inicio:i])
-                
+
 # ======= Referencias ===========
 
     def pedirRefs(self):
@@ -50,7 +50,7 @@ class DefReg:
                 self.expressoes.append(resolucoes[r+k])
             r += nchar[i]
             i += 1
-            
+
 # ======= Expressoes ===========
 
     def forcarExpressoes(self):
@@ -61,6 +61,8 @@ class DefReg:
             return 2
         elif op == "|" or op == ".":
             return 1
+        elif op == "|":
+            return 0
         else:
             return -1
 
@@ -107,7 +109,7 @@ class DefReg:
         #print("OUTPUT!")
         #print(output)
         self.operacoes = output
-        
+
 # ======= Arvore ===========
 
     def criarArvore(self):
