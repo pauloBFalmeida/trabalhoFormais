@@ -647,6 +647,7 @@ def menuMetodos(*args):
         print("    #/inuteis (remover simbolos inuteis)")
         print("    #/epsilon (remover epsilon producoes)")
         print("    #/recesq (remover recursao esquerda)")
+        print("    #/unitarias (remover producoes unitarias)")
         print("    #/fatoracao <profundidade maxima>")
         print("    #/analisar <entrada>")
         print("    #/chomsky")
@@ -667,8 +668,14 @@ def menuMetodos(*args):
                 obj.remRecEsq()
                 print('recesq bem sucedida')
             elif "fatoracao" in comando:
-                obj.fatoracao(int(comando[1]))
+                try:
+                    obj.fatoracao(int(comando[1]))
+                except IndexError:
+                    obj.fatoracao()
                 print('fatoracao bem sucedida')
+            elif "unitarias" in comando:
+                obj.remProdUnitarias()
+                print('remoção de produções unitárias bem sucedida')
             elif "analisar" in comando:
                 obj.analisar(comando[1])
                 print('analisar bem sucedido')

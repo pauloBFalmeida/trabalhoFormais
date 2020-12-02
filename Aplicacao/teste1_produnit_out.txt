@@ -1,0 +1,5 @@
+E -> -F | FH | i | TG 
+G -> vTG | vT
+T -> -F | FH | i
+H -> ^FH | ^F
+F -> -F | i

@@ -1,0 +1,5 @@
+S' -> S | & 
+S -> ABC | AB | BC | AC | B | C | A
+C -> cC | c | C
+A -> a | aA
+B -> b | Ad | Cd | bB | d | ACd

@@ -313,7 +313,7 @@ class GLC():
                 if prod == tuple(s):
                     producoes[s].discard(prod)
 
-        # 
+        #
         self.producoes = {}
         for i in producoes:
             for j in producoes:
@@ -355,7 +355,7 @@ class GLC():
 
 # ======== Fatoracao ========
 
-    def fatoracao(self, profundidade):
+    def fatoracao(self, profundidade=10):
         while profundidade > 0 and self.remNDetIndireto():
             profundidade -= 1
 
@@ -370,7 +370,7 @@ class GLC():
             problematicas = set()
             for prod in self.producoes[s]:
                 firsts = self.calcFirstsCadeia(prod)
-                # interseccao com o firsts de uma aux 
+                # interseccao com o firsts de uma aux
                 for a in auxiliar:
                     if len(firsts.intersection(a[1])) > 0:
                         problematicas.add(prod)
@@ -388,7 +388,7 @@ class GLC():
                         problematicas.add(prod)
                         #print(c+'dentro do if')
                         haMudanca = True
-                # 
+                #
                 auxiliar.append( (prod, firsts) )
             #
             for prod in problematicas:
@@ -405,7 +405,7 @@ class GLC():
         self.remNDetDireto()
         return haMudanca
 
-    
+
     def derivar(self, entrada):
         if len(entrada) == 0:
             return [tuple()]
@@ -422,7 +422,7 @@ class GLC():
             return saida
 
     def remNDetDireto(self):
-        
+
         producoes = self.producoes
         self.producoes = {}
         for s in producoes.copy():
@@ -446,7 +446,7 @@ class GLC():
                     if len(maxPref) > 0:
                         auxiliar[i] = tuple(maxPref)
                         encontrouPref = True
-                # 
+                #
                 if not encontrouPref:
                     auxiliar.append(prod)
             #
@@ -460,7 +460,7 @@ class GLC():
                     nt = s +'!'+ str(contador)
                     self.naoTerminais.add(nt)
                     contador += 1
-                    # 
+                    #
                     self.addProducao(s, aux+ (nt,) )
                     for p in producoesAux:
                         p = p[len(aux):]
@@ -592,9 +592,8 @@ class GLC():
 
 
     def construirAnalisador(self):
-        # self.remRecEsq()
-
-        # self.fatorar()
+        self.remRecEsq()
+        self.fatorar()
         for s in self.naoTerminais:
             self.calcfirsts(s)
 
@@ -686,11 +685,19 @@ class GLC():
     def exportarParaArquivo(self, nomeArquivo):
         texto = ""
         # producoes
+        simbolo = self.simboloInicial
+        texto += simbolo + " -> "
+        for derivacao in self.producoes[simbolo]:
+            texto += ''.join(derivacao) + " | "
+        texto = texto[:-2] + '\n'
+
         for simbolo in self.producoes:
+            if simbolo == self.simboloInicial:
+                continue
             texto += simbolo + " -> "
             for derivacao in self.producoes[simbolo]:
-                texto += derivacao + " |"
-            texto = texto[:-2] + '\n'
+                texto += ''.join(derivacao) + " | "
+            texto = texto[:-3] + '\n'
         # escrever no arquivo
         with open(nomeArquivo, 'w') as arquivo:
             arquivo.write(texto)

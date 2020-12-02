@@ -1,0 +1,3 @@
+S -> aSa | FbD 
+D -> fF | Dd | c
+F -> Dd | fF
