@@ -306,7 +306,11 @@ class GLC():
 
 
     def remRecEsq(self):
-        producoes = self.producoes
+        producoes = {}
+
+        for p in self.producoes:
+            producoes[p] = self.producoes[p].copy()
+
         # remover producoes circular
         for s in self.producoes:
             for prod in self.producoes[s].copy():
@@ -315,25 +319,31 @@ class GLC():
 
         #
         self.producoes = {}
-        for i in producoes:
-            for j in producoes:
-                # for i - j
-                if i == j:
-                    # add as proprias producoes
-                    for p in producoes[i]:
-                        self.addProducao(i, p)
-                    break
+        for p in producoes:
+            self.producoes[p] = producoes[p].copy()
+
+        # for p in self.producoes:
+        #     producoes[p] = self.producoes[p].copy()
+        # producoes = self.producoes.copy()
+
+        keys = list(producoes.keys())
+        print(keys)
+        counter = -1
+        for i in keys:
+            counter+=1
+            for j in keys[:counter]:
                 for prodi in producoes[i]:
                     # remove producao (n a adicionamos nas novas producoes)
                     if j == prodi[0]:
+                        self.remProducao(i, prodi)
                         for prodj in producoes[j]:
                             if prodj != tuple('&'):
                                 self.addProducao(i, prodj+prodi[1:])
                             else:
                                 self.addProducao(i, prodi[1:])
-                    else:
-                        self.addProducao(i, prodi)
+                producoes[i] = self.producoes[i].copy()
             #
+
             recursivos = []
             naoRec = []
             for prod in self.producoes[i]:

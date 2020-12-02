@@ -1,0 +1,4 @@
+E -> TsV | s
+T -> V | s
+V -> ssV@ | &V@ | ssVsV@
+V@ -> & | sVsV@
