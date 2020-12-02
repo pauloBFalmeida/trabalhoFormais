@@ -400,7 +400,9 @@ class GLC():
                     derivacoes.remove(tuple())
                     derivacoes.append(tuple('&'))
                 for d in derivacoes:
-                    self.addProducao(s, d)
+                    nt = ''.join(s)
+                    self.naoTerminais.add(nt)
+                    self.addProducao(nt, d)
         #
         self.remNDetDireto()
         return haMudanca
@@ -410,7 +412,7 @@ class GLC():
         if len(entrada) == 0:
             return [tuple()]
         if entrada[0] in self.terminais:
-            return [(entrada[0],) + prod for prod in self.derivar(entrada[1:])]
+            return [entrada[0] + ''.join(prod) for prod in self.derivar(entrada[1:])]
         elif entrada[0] in self.producoes:
             saida = []
             derivacoes = self.derivar(entrada[1:])
@@ -418,7 +420,7 @@ class GLC():
                 if prod == tuple('&'):
                     saida += derivacoes
                 else:
-                    saida += [prod + deriv for deriv in derivacoes]
+                    saida += [''.join(prod) + ''.join(deriv) for deriv in derivacoes]
             return saida
 
     def remNDetDireto(self):
@@ -471,6 +473,44 @@ class GLC():
 
 
 # ======== reconhecedor ========
+
+    def analisar(self, sentenca):
+        self.construirAnalisador()
+        sentenca = sentenca + '$'
+        cabecote = 0
+        pilha = ['$']
+
+        pilha.append(self.simboloInicial)
+
+        while True:
+
+            print()
+            print(sentenca[cabecote:])
+            print(pilha)
+
+            topo = pilha[-1]
+            s = sentenca[cabecote]
+
+            if topo == "&":
+                pilha.pop()
+                continue
+
+            if topo == "$" and s == "$":
+                return True
+            elif topo in self.terminais and topo == s:
+                print("desempilha")
+                pilha.pop()
+                cabecote += 1
+            else:
+                if (topo, s) in self.tabela:
+                    prod = list(self.tabela[(topo, s)])
+                    print("producao: " + str(prod))
+                    prod.reverse()
+                    pilha.pop()
+                    for i in prod:
+                        pilha.append(i)
+                else:
+                    return False
 
     def calcfirsts(self, c):
         if c in self.firsts:
@@ -621,53 +661,40 @@ class GLC():
             print(f'{t} -> {self.tabela[t]}')
 
 
+# ======= ajustar Nome Producoes =========
 
-
-    def analisar(self, sentenca):
-        self.construirAnalisador()
-        sentenca = sentenca + '$'
-        cabecote = 0
-        pilha = ['$']
-
-        pilha.append(self.simboloInicial)
-
-        while True:
-
-            print()
-            print(sentenca[cabecote:])
-            print(pilha)
-
-            topo = pilha[-1]
-            s = sentenca[cabecote]
-
-            if topo == "&":
-                pilha.pop()
-                continue
-
-            if topo == "$" and s == "$":
-                print("aceita")
-                break
-            elif topo in self.terminais and topo == s:
-                print("desempilha")
-                pilha.pop()
-                cabecote += 1
+    def ajustarNomeProducoes(self):
+        nomesNT = {self.simboloInicial: 'S'}
+        # ajustar os nomes
+        contadorNT = {}
+        naoTerminais = set()
+        for s in self.naoTerminais:
+            nt = s[0]
+            if len(s) > 1 and s[1] in ['!','@',"'"]:
+                nt += s[1]
+            if nt not in contadorNT:
+                contadorNT[nt] = 0
             else:
-                if (topo, s) in self.tabela:
-                    prod = list(self.tabela[(topo, s)])
-                    print("producao: " + str(prod))
-                    prod.reverse()
-                    pilha.pop()
-                    for i in prod:
-                        pilha.append(i)
-                else:
-                    print("rejeita")
-                    break
+                contadorNT[nt] += 1
+                nt = nt + str(contadorNT[nt])
+            #
+            naoTerminais.add(nt)
+            nomesNT[s] = nt
 
-
-
-
-
-
+        # ajustar as producoes
+        self.naoTerminais = naoTerminais
+        producoes = self.producoes
+        self.producoes = {}
+        for s in producoes:
+            for prod in producoes[s]:
+                novaProd = []
+                for p in prod:
+                    if p in nomesNT:
+                        novaProd.append(nomesNT[p])
+                    else:
+                        novaProd.append(p)
+                # adiciona a nova prod
+                self.addProducao(nomesNT[s], novaProd)
 
 # ======= printar ===========
 
@@ -685,15 +712,7 @@ class GLC():
     def exportarParaArquivo(self, nomeArquivo):
         texto = ""
         # producoes
-        simbolo = self.simboloInicial
-        texto += simbolo + " -> "
-        for derivacao in self.producoes[simbolo]:
-            texto += ''.join(derivacao) + " | "
-        texto = texto[:-2] + '\n'
-
-        for simbolo in self.producoes:
-            if simbolo == self.simboloInicial:
-                continue
+        for simbolo in [self.simboloInicial] + [p for p in self.producoes if p != self.simboloInicial]:
             texto += simbolo + " -> "
             for derivacao in self.producoes[simbolo]:
                 texto += ''.join(derivacao) + " | "

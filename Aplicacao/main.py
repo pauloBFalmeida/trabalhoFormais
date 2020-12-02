@@ -651,6 +651,7 @@ def menuMetodos(*args):
         print("    #/fatoracao <profundidade maxima>")
         print("    #/analisar <entrada>")
         print("    #/chomsky")
+        print("    #/ajustar(NomeProducoes)")
         print("    #/print")
         print("    #/sair")
         while True:
@@ -660,28 +661,31 @@ def menuMetodos(*args):
                 break
             elif "inuteis" in comando:
                 obj.removerInuteis()
-                print('inuteis bem sucedida')
+                print('remoção de simbolos inuteis bem sucedida')
             elif "epsilon" in comando:
                 obj.removerEpsilonProd()
-                print('epsilon bem sucedida')
+                print('remoção de epsilon producoes bem sucedida')
             elif "recesq" in comando:
                 obj.remRecEsq()
-                print('recesq bem sucedida')
+                print('remoção da recursao a esquerda bem sucedida')
             elif "fatoracao" in comando:
-                try:
+                if len(comando) > 1:
                     obj.fatoracao(int(comando[1]))
-                except IndexError:
-                    obj.fatoracao()
+                else:
+                    obj.fatoracao(10)
                 print('fatoracao bem sucedida')
             elif "unitarias" in comando:
                 obj.remProdUnitarias()
                 print('remoção de produções unitárias bem sucedida')
-            elif "analisar" in comando:
-                obj.analisar(comando[1])
-                print('analisar bem sucedido')
+            elif "analisar" in comando and len(comando) > 1:
+                ret = obj.analisar(comando[1])
+                print("aceita" if ret else "rejeita")
             elif "chomsky" in comando:
                 obj.formaNormalChomsky()
                 print('chomsky bem sucedida')
+            elif "ajustar" in comando:
+                obj.ajustarNomeProducoes()
+                print('nome das producoes foi ajustado')
             elif "print" in comando:
                 obj.printar()
 
