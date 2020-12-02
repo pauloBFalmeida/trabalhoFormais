@@ -1,0 +1,3 @@
+S -> ae | BC
+B -> ae | a | &
+C -> ae | e
