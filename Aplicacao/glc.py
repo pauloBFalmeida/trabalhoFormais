@@ -344,9 +344,9 @@ class GLC():
                 novasProdI  = set()
                 novasProdIa = set(tuple("&"))
                 for r in recursivos:
-                    novasProdIa.add(r+tuple(ia))
+                    novasProdIa.add(r+(ia,))
                 for n in naoRec:
-                    novasProdI.add(n+tuple(ia))
+                    novasProdI.add(n+(ia,))
                 self.producoes[i]  = novasProdI
                 self.producoes[ia] = novasProdIa
 
@@ -617,7 +617,7 @@ class GLC():
 
     def construirAnalisador(self):
         self.remRecEsq()
-        self.fatorar()
+        self.fatoracao()
         for s in self.naoTerminais:
             self.calcfirsts(s)
 
@@ -626,13 +626,13 @@ class GLC():
         self.calcfollows1()
         while self.calcfollows2(): pass
 
-        print("FIRSTS")
-        for f in self.firsts:
-            print(f'{f} -> {self.firsts[f]}')
+        # print("FIRSTS")
+        # for f in self.firsts:
+        #     print(f'{f} -> {self.firsts[f]}')
 
-        print("Follows")
-        for f in self.follows:
-            print(f'{f} -> {self.follows[f]}')
+        # print("Follows")
+        # for f in self.follows:
+        #     print(f'{f} -> {self.follows[f]}')
 
         for s in self.naoTerminais:
             if len(self.firsts[s].intersection(self.follows[s])) != 0:
@@ -641,8 +641,8 @@ class GLC():
 
         self.construirTabela()
 
-        for t in self.tabela:
-            print(f'{t} -> {self.tabela[t]}')
+        # for t in self.tabela:
+            # print(f'{t} -> {self.tabela[t]}')
 
 
 # ======= ajustar Nome Producoes =========
