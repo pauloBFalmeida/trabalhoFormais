@@ -1,8 +1,6 @@
-
 from erros import *
 
 class GLC():
-
 
     def __init__(self, simboloInicial='S', terminais=[], naoTerminais=[]):
         self.simboloInicial = simboloInicial
@@ -70,14 +68,13 @@ class GLC():
         while True:
             p1 = self.removerInalcancaveis()
             p2 = self.removerImprodutivos()
-            # p2 = False
-            # p1 = False
             if (not p1) and (not p2):
                 break
 
     def removerImprodutivos(self):
         produtivos = self.terminais
-
+        # encontro os nao terminais que alcancam outros produtivos
+        # e adiciono eles como produtivos
         while True:
             q = set()
             for s in self.producoes:
@@ -96,7 +93,7 @@ class GLC():
 
         novasProducoes = {}
         mudou = False
-
+        # percorro as os nao terminais improdutivos e nao adicionando eles nas novas producoes
         for s in produtivos.difference(self.terminais):
             novasProducoes[s] = set()
             for deriv in self.producoes[s]:
@@ -109,21 +106,18 @@ class GLC():
                 if produtiva:
                     novasProducoes[s].add(deriv)
         self.producoes = novasProducoes
+        # retorno se houve mudanca nas producoes
         return mudou
 
     def removerInalcancaveis(self):
         alcancaveis = {self.simboloInicial}
-
         search = {self.simboloInicial}
-
+        # salvo os NT alcancaveis partindo do simbolo inicial, e dps partindo dos outros alcancaveis
         while True:
             q = set()
-            # print(q)
-
             for s in search:
                 if s not in self.producoes:
                     continue
-
                 for deriv in self.producoes[s]:
                     for c in deriv:
                         if c in self.naoTerminais and c not in alcancaveis:
@@ -133,9 +127,11 @@ class GLC():
             search = q
             alcancaveis = alcancaveis.union(q)
 
+        # se nao houve mudanca
         if alcancaveis == self.naoTerminais:
             return False
 
+        # ajusto com as novas producoes
         novasProducoes = {}
         mudou = False
 
@@ -159,9 +155,9 @@ class GLC():
 # ======== Remover Epsilon Producoes ==============
 
     def removerEpsilonProd(self):
-
         anulaveis = {"&"}
-
+        # adiciono os NT cujo as producoes sao totalmente compostas por anulaveis,
+        # quando eu nao adicionar nenhuma nova producao aos anulaveis termino
         while True:
             q = set()
             for s in self.producoes:
@@ -177,7 +173,7 @@ class GLC():
             if len(q) == 0:
                 break
             anulaveis = anulaveis.union(q)
-
+        # permutacoes
         def perms(deriv):
             if len(deriv) == 1:
                 if deriv[0] in self.terminais:
@@ -186,24 +182,18 @@ class GLC():
                     return [deriv[0]]
                 return [deriv[0], ""]
 
-            # print(deriv[1:])
             prods = perms(deriv[1:])
             print(deriv[0])
             if deriv[0] in self.terminais:
-                # print([(deriv[0] + prod) for prod in prods])
                 return [(deriv[0] + prod) for prod in prods]
-
-            if deriv[0] not in anulaveis: # in naoTerminais
-                # print([(deriv[0] + prod) for prod in prods])
+            # in naoTerminais
+            if deriv[0] not in anulaveis:
                 return [(deriv[0] + prod) for prod in prods]
-            # print([(deriv[0] + prod) for prod in prods] +  [prod for prod in prods])
             return [(deriv[0] + prod) for prod in prods] +  [prod for prod in prods]
 
+        # ajusto as novas producoes
         novasProducoes = {}
-        # print(anulaveis)
-        # print(perms("ABC"))
         for s in self.producoes:
-
             novasDerivacoes = set()
             for deriv in self.producoes[s]:
                 if deriv[0] == "&":
@@ -214,7 +204,7 @@ class GLC():
                 novasDerivacoes = novasDerivacoes.union(permutacoes)
 
             novasProducoes[s] = novasDerivacoes
-
+        # se o simbolo inicial for anulavel, crio um novo estado inicial S' -> S | &
         if self.simboloInicial in anulaveis:
             novasProducoes["S'"] = {tuple(self.simboloInicial), tuple("&")}
             self.simboloInicial = "S'"
@@ -227,7 +217,8 @@ class GLC():
         self.removerEpsilonProd()
         self.remProdUnitarias()
         self.removerInuteis()
-        # troca os terminais por nao terminais
+
+        # troco os terminais por nao terminais da forma A# -> a
         producoes = self.producoes
         self.producoes = {}
         tParaNT = {}
@@ -249,6 +240,7 @@ class GLC():
         for t in tParaNT:
             self.naoTerminais.add(tParaNT[t])
             self.producoes[tParaNT[t]] = t
+
         # quebra as producoes com mais de 2 nao terminais
         producoes = self.producoes
         self.producoes = {}
@@ -307,25 +299,18 @@ class GLC():
 
     def remRecEsq(self):
         producoes = {}
-
         for p in self.producoes:
             producoes[p] = self.producoes[p].copy()
-
         # remover producoes circular
         for s in self.producoes:
             for prod in self.producoes[s].copy():
                 if prod == tuple(s):
                     producoes[s].discard(prod)
-
         #
         self.producoes = {}
         for p in producoes:
             self.producoes[p] = producoes[p].copy()
-
-        # for p in self.producoes:
-        #     producoes[p] = self.producoes[p].copy()
-        # producoes = self.producoes.copy()
-
+        # percorro os NTs
         keys = list(producoes.keys())
         print(keys)
         counter = -1
@@ -333,17 +318,17 @@ class GLC():
             counter+=1
             for j in keys[:counter]:
                 for prodi in producoes[i]:
-                    # remove producao (n a adicionamos nas novas producoes)
                     if j == prodi[0]:
+                        # remove producao
                         self.remProducao(i, prodi)
+                        # adiciono as outras producoes na frente
                         for prodj in producoes[j]:
                             if prodj != tuple('&'):
                                 self.addProducao(i, prodj+prodi[1:])
                             else:
                                 self.addProducao(i, prodi[1:])
                 producoes[i] = self.producoes[i].copy()
-            #
-
+            # separo as recursivas e nao recursivas
             recursivos = []
             naoRec = []
             for prod in self.producoes[i]:
@@ -351,6 +336,8 @@ class GLC():
                     recursivos.append(prod[1:])
                 else:
                     naoRec.append(prod)
+            # se houver recursivas A -> Ac | b
+            #  A -> bA@, A@ -> cA@ | &
             if len(recursivos) > 0:
                 ia = i+"@"
                 self.naoTerminais.add(ia)
@@ -389,14 +376,9 @@ class GLC():
                 #
                 for i in range(len(prod)-1):
                     c = prod[i]
-                    #print(c)
-                    #print(self.firsts[c])
-                    #print('&' in self.firsts[c])
-                    #print(len(self.firsts[c].intersection(self.calcFirstsCadeia(prod[i+1:]))) > 0)
                     if c in self.naoTerminais and '&' in self.firsts[c] and \
                             len(self.firsts[c].intersection(self.calcFirstsCadeia(prod[i+1:]))) > 0:
                         problematicas.add(prod)
-                        #print(c+'dentro do if')
                         haMudanca = True
                 #
                 auxiliar.append( (prod, firsts) )
@@ -534,10 +516,8 @@ class GLC():
         if c in self.producoes:
             for prod in self.producoes[c]:
                 if prod[0] in self.terminais:
-                    # print(f'{c} adic {prod[0]}')
                     firstc.add(prod[0])
                 elif prod == '&':
-                    # print(f'{c} !!!!!')
                     firstc.add('&')
                 else:
                     soEpsilons = True
@@ -546,14 +526,10 @@ class GLC():
                         if '&' in cf:
                             cf.discard('&')
                         firstc = firstc.union(cf)
-                        # print(f'first {c} <- {cf}')
-                        # print(f'{firstc}')
-                        # print(('&' not in self.firsts[nt]))
                         if '&' not in self.firsts[nt]:
                             soEpsilons = False
                             break
                     if soEpsilons:
-                        # print(f'para {c} adiciona &')
                         firstc.add('&')
         self.firsts[c] = firstc
         return firstc.copy()
@@ -577,7 +553,6 @@ class GLC():
     def calcfollows1(self):
 
         for c in self.naoTerminais:
-            # followc = set()
             if c in self.producoes:
                 if c not in self.follows:
                     self.follows[c] = set()
@@ -599,7 +574,6 @@ class GLC():
     def calcfollows2(self):
         haMudanca = False
         for c in self.naoTerminais:
-            # followc = set()
             if c in self.producoes:
                 for prod in self.producoes[c]:
 
@@ -680,7 +654,7 @@ class GLC():
         naoTerminais = set()
         for s in self.naoTerminais:
             nt = s[0]
-            if len(s) > 1 and s[1] in ['!','@',"'"]:
+            if len(s) > 1 and s[1] in ['!','@',"'",'#']:
                 nt += s[1]
             if nt not in contadorNT:
                 contadorNT[nt] = 0
