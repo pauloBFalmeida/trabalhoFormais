@@ -1,4 +1,0 @@
-S -> aB |cB |bC
-B -> aB |cB |bC
-C -> bA |aB |cB |b
-A -> cA |aA |c |a |bA |b

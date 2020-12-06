@@ -1,4 +1,0 @@
-S -> aW | cW | bU
-W -> aW | cW | bU
-U -> aW | cW | bD | b
-D -> a | b | c | aD | bD | cD

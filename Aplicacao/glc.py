@@ -373,7 +373,7 @@ class GLC():
                         problematicas.add(prod)
                         problematicas.add(a[0])
                         haMudanca = True
-                #
+                # percorro a producao vendo se ela e problematica
                 for i in range(len(prod)-1):
                     c = prod[i]
                     if c in self.naoTerminais and '&' in self.firsts[c] and \
@@ -382,20 +382,23 @@ class GLC():
                         haMudanca = True
                 #
                 auxiliar.append( (prod, firsts) )
-            #
+            # descarto as producoes problematicas da glc
             for prod in problematicas:
                 self.producoes[s].discard(prod)
-            #
+            # 
             for prod in problematicas:
                 derivacoes = self.derivar(prod)
+                # se tem producao por epsilon, que e representado pela tuple vazia
+                # add a producao por epsilon
                 if tuple() in derivacoes:
                     derivacoes.remove(tuple())
                     derivacoes.append(tuple('&'))
+                # adicionamos uma producao saindo do nao terminal 's' indo para cada derivacao
                 for d in derivacoes:
-                    nt = ''.join(s)
+                    nt = ''.join(s)     # transforma a tuple em string
                     self.naoTerminais.add(nt)
                     self.addProducao(nt, d)
-        #
+        # removemos o n det direto por fim
         self.remNDetDireto()
         return haMudanca
 
@@ -416,7 +419,6 @@ class GLC():
             return saida
 
     def remNDetDireto(self):
-
         producoes = self.producoes
         self.producoes = {}
         for s in producoes.copy():
@@ -425,7 +427,7 @@ class GLC():
                 if len(auxiliar) == 0:
                     auxiliar.append(prod)
                     continue
-                #
+                # encontramos o maior prefixo comum entre producoes, e add na lista auxiliar
                 encontrouPref = False
                 for i in range(len(auxiliar)):
                     prodA = auxiliar[i]
@@ -440,10 +442,13 @@ class GLC():
                     if len(maxPref) > 0:
                         auxiliar[i] = tuple(maxPref)
                         encontrouPref = True
-                #
+                # se nao tiver prefixo, add a producao na lista auxiliar
                 if not encontrouPref:
                     auxiliar.append(prod)
-            #
+            # pra cada maior prefixo na lista de auxiliar
+            # S -> aA | aB 
+            # S -> a'S!1'
+            # S!1 -> A | B 
             contador = 1
             for aux in auxiliar:
                 producoesAux = []
@@ -451,16 +456,18 @@ class GLC():
                     if len(aux) <= len(prod) and aux == prod[:len(aux)]:
                         producoesAux.append(prod)
                 if len(producoesAux) > 1:
+                    # novo nao terminal A!contador 
                     nt = s +'!'+ str(contador)
                     self.naoTerminais.add(nt)
                     contador += 1
-                    #
+                   # adicionamos a prod
                     self.addProducao(s, aux+ (nt,) )
                     for p in producoesAux:
                         p = p[len(aux):]
                         p = p if len(p) > 0 else tuple('&')
                         self.addProducao(nt, p)
                 else:
+                    # se nao producao nao tiver pref em comum com nenhuma, add ela normalmente
                     self.addProducao(s, aux)
 
 
